@@ -74,7 +74,7 @@ png(filename = "100dfss50.png")
 df100ss50 
 dev.off()
 
-df01ss50 <- likelihood_sampling_variance_boostrap(.01, 50)
+df01ss50 <- likelihood_sampling_variance_boostrap(.1, 50)
 png(filename = "01dfss50.png")
 df01ss50 
 dev.off()
