@@ -6,6 +6,6 @@ Many measure used to evaluate models are based in some way on likelihoods. For a
 
 Consider the data-generating process
 
-$$y = \beta_1 x_1 + \beta_2 x2 + \epsilon$$
+\\( y = \beta_1 x_1 + \beta_2 x2 + \epsilon \\)
 
 where the error term follows a t distribution with *df* degrees of freedom. 
