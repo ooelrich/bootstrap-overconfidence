@@ -26,7 +26,7 @@ likelihood_sampling_variance_boostrap <- function(df, samp_size){
 
     boot_matrix <- melt(data.frame(boot_matrix))
     ggplot(boot_matrix, aes(value, color = variable)) + geom_density()
-    
+
     final_plot <- ggplot() +
                     geom_density(data = boot_matrix,
                         aes(value, color = variable)) + 
