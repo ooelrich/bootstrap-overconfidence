@@ -8,10 +8,10 @@ library(dgpsim)
 library(ggplot2)
 library(cowplot)
 library(reshape2)
+library(parallel)
 
-sim_boostrap_t <- function(df, n_obs) {
+sim_baseline_t <- function(df, n_obs, sim_reps) {
 
-    sim_reps <- 2e5
     log_bf <- rep(NA, sim_reps)
     data <- dgp(n_obs, 2, 2, TRUE)
 
@@ -29,31 +29,60 @@ sim_boostrap_t <- function(df, n_obs) {
     return(log_bf)
 }
 
-# Generate the baseline distributions
 
-df1_baseline <- data.frame(sim_boostrap_t(1, 100))
+# Run 10 million reps for each of the different degrees of freedom
+
+workers <- 5
+worker_reps <- 2e6
+
+cl <- makeCluster(workers)
+
+clusterEvalQ(cl, {
+        library(dgpsim)
+})
+
+resdf1 <- parSapply(cl, rep(worker_reps, workers), sim_baseline_t, df = 1, n_obs = 100)
+df1_baseline <- data.frame(as.vector(resdf1))
 colnames(df1_baseline) <- c("log_BF")
 plot_df1 <- ggplot(df1_baseline, aes(x = log_BF)) +
+                geom_histogram(binwidth = .01)
+
+resdf2 <- parSapply(cl, rep(worker_reps, workers), sim_baseline_t, df = 2, n_obs = 100)
+df2_baseline <- data.frame(as.vector(resdf2))
+colnames(df2_baseline) <- c("log_BF")
+plot_df2 <- ggplot(df2_baseline, aes(x = log_BF)) +
                 geom_histogram(binwidth = .1)
 
-df10_baseline <- data.frame(sim_boostrap_t(10, 100))
+resdf5 <- parSapply(cl, rep(worker_reps, workers), sim_baseline_t, df = 5, n_obs = 100)
+df5_baseline <- data.frame(as.vector(resdf5))
+colnames(df5_baseline) <- c("log_BF")
+plot_df5 <- ggplot(df5_baseline, aes(x = log_BF)) +
+                geom_histogram(binwidth = .1)
+
+resdf10 <- parSapply(cl, rep(worker_reps, workers), sim_baseline_t, df = 10, n_obs = 100)
+df10_baseline <- data.frame(as.vector(resdf10))
 colnames(df10_baseline) <- c("log_BF")
 plot_df10 <- ggplot(df10_baseline, aes(x = log_BF)) +
                 geom_histogram(binwidth = .1)
 
-df100_baseline <- data.frame(sim_boostrap_t(100, 100))
+resdf100 <- parSapply(cl, rep(worker_reps, workers), sim_baseline_t, df = 100, n_obs = 100)
+df100_baseline <- data.frame(as.vector(resdf100))
 colnames(df100_baseline) <- c("log_BF")
 plot_df100 <- ggplot(df100_baseline, aes(x = log_BF)) +
                 geom_histogram(binwidth = .1)
 
-plot_grid(plot_df1, plot_df10, plot_df100)
+stopCluster(cl)
+
+plot_grid(plot_df1, plot_df2, plot_df5, plot_df10, plot_df100)
+
+
 # Making the variances comparable across different
 # degrees of freedom
 
 
 # Using boostrap instead
 
-sim_boostrap_t_boot <- function(df, n_obs) {
+sim_baseline_t_boot <- function(df, n_obs) {
 
     n_data_sets <- 1e1
     n_bootstrap_reps <- 1e3
@@ -89,15 +118,15 @@ sim_boostrap_t_boot <- function(df, n_obs) {
 }
 
 
-plot_radicalization <- function(d_f, n_obs){
-    dfr <- sim_boostrap_t_boot(d_f, n_obs)
+plot_radicalization <- function(d_f, n_obs, ref_data) {
+    dfr <- sim_baseline_t_boot(d_f, n_obs)
     df_melt <- melt(dfr)[, 2:3]
     colnames(df_melt) <- c("variable", "value")
     df_melt$variable <- as.factor(df_melt$variable)
     radical_plot <- ggplot() + 
                     geom_density(data = df_melt,
-                        aes(x = value, color = variable))
-                    geom_density(data = df1_baseline,
+                        aes(x = value, color = variable)) +
+                    geom_density(data = ref_data,
                         aes(x = log_BF),
                         color = "black",
                         size = 1.5) +
@@ -106,9 +135,9 @@ plot_radicalization <- function(d_f, n_obs){
     return(radical_plot)
 }
 
-radicalization_df1 <- plot_radicalization(1, 100)
-radicalization_df10 <- plot_radicalization(10, 100)
-radicalization_df100 <- plot_radicalization(100, 100)
+radicalization_df1 <- plot_radicalization(1, 100, df1_baseline)
+radicalization_df10 <- plot_radicalization(10, 100, df10_baseline)
+radicalization_df100 <- plot_radicalization(100, 100, df100_baseline)
 
 plot_grid(radicalization_df1,
           radicalization_df10,
