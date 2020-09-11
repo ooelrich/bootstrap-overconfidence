@@ -32,6 +32,16 @@ sim_baseline_t <- function(df, n_obs, sim_reps) {
 
 # Run 10 million reps for each of the different degrees of freedom
 
+# Helper function to reduce amount of code when producing
+# the baselines
+baseline_fun <- function(df, n_obs) {
+    resdat <- parSapply(cl, rep(worker_reps, workers),
+                        sim_baseline_t, df = df, n_obs = n_obs)
+    df_base <- data.frame(as.vector(resdat))
+    colnames(df_base) <- c("log_BF")
+    return(df_base)
+}
+
 workers <- 5
 worker_reps <- 2e6
 
@@ -41,40 +51,37 @@ clusterEvalQ(cl, {
         library(dgpsim)
 })
 
-resdf1 <- parSapply(cl, rep(worker_reps, workers), sim_baseline_t, df = 1, n_obs = 100)
-df1_baseline <- data.frame(as.vector(resdf1))
-colnames(df1_baseline) <- c("log_BF")
-plot_df1 <- ggplot(df1_baseline, aes(x = log_BF)) +
-                geom_histogram(binwidth = .01)
-
-resdf2 <- parSapply(cl, rep(worker_reps, workers), sim_baseline_t, df = 2, n_obs = 100)
-df2_baseline <- data.frame(as.vector(resdf2))
-colnames(df2_baseline) <- c("log_BF")
-plot_df2 <- ggplot(df2_baseline, aes(x = log_BF)) +
-                geom_histogram(binwidth = .1)
-
-resdf5 <- parSapply(cl, rep(worker_reps, workers), sim_baseline_t, df = 5, n_obs = 100)
-df5_baseline <- data.frame(as.vector(resdf5))
-colnames(df5_baseline) <- c("log_BF")
-plot_df5 <- ggplot(df5_baseline, aes(x = log_BF)) +
-                geom_histogram(binwidth = .1)
-
-resdf10 <- parSapply(cl, rep(worker_reps, workers), sim_baseline_t, df = 10, n_obs = 100)
-df10_baseline <- data.frame(as.vector(resdf10))
-colnames(df10_baseline) <- c("log_BF")
-plot_df10 <- ggplot(df10_baseline, aes(x = log_BF)) +
-                geom_histogram(binwidth = .1)
-
-resdf100 <- parSapply(cl, rep(worker_reps, workers), sim_baseline_t, df = 100, n_obs = 100)
-df100_baseline <- data.frame(as.vector(resdf100))
-colnames(df100_baseline) <- c("log_BF")
-plot_df100 <- ggplot(df100_baseline, aes(x = log_BF)) +
-                geom_histogram(binwidth = .1)
+df1_baseline <- baseline_fun(1, 100)
+df2_baseline <- baseline_fun(2, 100)
+df5_baseline <- baseline_fun(5, 100)
+df10_baseline <- baseline_fun(10, 100)
+df100_baseline <- baseline_fun(100, 100)
 
 stopCluster(cl)
 
-plot_grid(plot_df1, plot_df2, plot_df5, plot_df10, plot_df100)
+plot_df1 <- ggplot(df1_baseline, aes(x = log_BF)) +
+                geom_histogram(binwidth = .01) +
+                labs(title = "df = 1")
 
+plot_df2 <- ggplot(df2_baseline, aes(x = log_BF)) +
+                geom_histogram(binwidth = .1) +
+                labs(title = "df = 2")
+
+plot_df5 <- ggplot(df5_baseline, aes(x = log_BF)) +
+                geom_histogram(binwidth = .1) +
+                labs(title = "df = 5")
+
+plot_df10 <- ggplot(df10_baseline, aes(x = log_BF)) +
+                geom_histogram(binwidth = .1) +
+                labs(title = "df = 10")
+
+plot_df100 <- ggplot(df100_baseline, aes(x = log_BF)) +
+                geom_histogram(binwidth = .1) +
+                labs(title = "df = 100")
+
+pdf("10millionEachTry1.pdf")
+plot_grid(plot_df1, plot_df2, plot_df5, plot_df10, plot_df100)
+dev.off()
 
 # Making the variances comparable across different
 # degrees of freedom
