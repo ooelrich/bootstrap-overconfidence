@@ -17,12 +17,12 @@ sim_baseline_t <- function(df, n_obs, sim_reps) {
 
     for (i in seq_len(sim_reps)) {
 
-        y <- data[, 1] + rt(n_obs, df)
+        y <- data[, 1] + sqrt( (df - 2) / df) * rt(n_obs, df)
         mod1 <- lm(y ~ 0 + data[, 2])
         mod2 <- lm(y ~ 0 + data[, 3])
 
-        log_ml1 <- sum(pnorm(y, fitted(mod1), summary(mod1)$sigma, log = T))
-        log_ml2 <- sum(pnorm(y, fitted(mod2), summary(mod2)$sigma, log = T))
+        log_ml1 <- sum(pnorm(y, fitted(mod1), summary(mod1)$sigma, log = TRUE))
+        log_ml2 <- sum(pnorm(y, fitted(mod2), summary(mod2)$sigma, log = TRUE))
         log_bf[i] <- log_ml1 - log_ml2
     }
 
@@ -42,8 +42,10 @@ baseline_fun <- function(df, n_obs) {
     return(df_base)
 }
 
+
+
 workers <- 5
-worker_reps <- 2e6
+worker_reps <- 2e5
 
 cl <- makeCluster(workers)
 
@@ -51,11 +53,11 @@ clusterEvalQ(cl, {
         library(dgpsim)
 })
 
-df1_baseline <- baseline_fun(1, 100)
-df2_baseline <- baseline_fun(2, 100)
+df2_baseline <- baseline_fun(3, 100)
 df5_baseline <- baseline_fun(5, 100)
 df10_baseline <- baseline_fun(10, 100)
 df100_baseline <- baseline_fun(100, 100)
+df1000_baseline <- baseline_fun(1000, 100)
 
 stopCluster(cl)
 
