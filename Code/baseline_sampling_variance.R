@@ -53,6 +53,7 @@ clusterEvalQ(cl, {
 # one matrix. Need to rerun everything a lot of times so that 
 # I can see how things changes between simulations!
 
+set.seed(861226)
 design_etc <- dgp(n_obs, 2, 2, TRUE)
 
 df3_base <- baseline_fun(3, n_obs, design_etc)
@@ -80,6 +81,6 @@ df_all_melt$variable <- as.factor(df_all_melt$variable)
 plot_all <- ggplot(df_all_melt, aes(x = value, col = variable)) +
                 geom_density()
 
-pdf("baselineSamplingVariances.pdf")
+pdf("baselineSamplingVariancesAgain.pdf")
 plot_all
 dev.off()
