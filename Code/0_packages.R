@@ -17,10 +17,10 @@ library(lme4)
 set.seed(861226)
 design_mat <- dgp(n_obs, 2, 2, TRUE)
 n_obs <- 1e2 # Sample size
-n_parents <- 1e1 # no data sets to boostrap from
-n_bss <- 1e2 # no bootstrap replicates per parent
-sim_reps <- 1e4 # no reps to determine true sampling variance
-dfs <- c(3, 4, 5, 6, 7) # degrees of freedom of the dgp
+n_parents <- 1e3 # no data sets to boostrap from
+n_bss <- 1e4 # no bootstrap replicates per parent
+sim_reps <- 1e5 # no reps to determine true sampling variance
+dfs <- c(3, 4, 5, 6, 7, 8, 9, 10) # degrees of freedom of the dgp
 
 # Each experiment is run using a specific design
 # matrix, which includes a response variable WITHOUT
