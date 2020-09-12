@@ -4,6 +4,7 @@ library(cowplot)
 library(reshape2)
 library(parallel)
 library(dplyr)
+library(lme4)
 
 # Function to simulate the sampling variance not using bootstrap
 
@@ -41,6 +42,10 @@ baseline_fun <- function(df, n_obs, design_etc) {
 # looking histograms. Five workers and 2e5 reps means one million each
 
 n_obs <- 100
+set.seed(861226)
+design_etc <- dgp(n_obs, 2, 2, TRUE)
+
+
 workers <- 5
 worker_reps <- 2e4
 cl <- makeCluster(workers)
@@ -53,9 +58,6 @@ clusterEvalQ(cl, {
 # one matrix. Need to rerun everything a lot of times so that 
 # I can see how things changes between simulations!
 
-set.seed(861226)
-design_etc <- dgp(n_obs, 2, 2, TRUE)
-
 df3_base <- baseline_fun(3, n_obs, design_etc)
 df5_base <- baseline_fun(5, n_obs, design_etc)
 df10_base <- baseline_fun(10, n_obs, design_etc)
@@ -66,21 +68,24 @@ stopCluster(cl)
 
 # collect all the data in one data frame
 
-df_all <- data.frame(df3_base,
-                       df5_base,
-                       df10_base,
-                       df100_base,
-                       df1000_base)
-colnames(df_all) <- c("df3", "df5", "df10", "df100", "df1000")
+df_all_baseline <- data.frame(df3_base,
+                     df5_base,
+                     df10_base,
+                     df100_base,
+                     df1000_base)
+colnames(df_all_baseline) <- c("df3", "df5", "df10", "df100", "df1000")
 
 # Check the overall sampling variances
-df_all %>% summarise_if(is.numeric, var)
+df_all_baseline %>% summarise_if(is.numeric, var)
 
-df_all_melt <- melt(df_all)
-df_all_melt$variable <- as.factor(df_all_melt$variable)
-plot_all <- ggplot(df_all_melt, aes(x = value, col = variable)) +
+
+df_all_baseline_melt <- melt(df_all_baseline)
+df_all_baseline_melt$variable <- as.factor(df_all_baseline_melt$variable)
+plot_all <- ggplot(df_all_baseline_melt, aes(x = value, col = variable)) +
                 geom_density()
 
 pdf("baselineSamplingVariancesAgain.pdf")
 plot_all
 dev.off()
+
+save(df_all_baseline, file = "boostrapSmallSaturday.RData")

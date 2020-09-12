@@ -48,3 +48,10 @@ Plot a whole bunch of bootstrap based estimates of the sampling varaince togethe
 ##### Probability of radicalization
 
 Let's call an estiamate of sampling variance *radicalized* if it is greater than the true sampling variance by some factor. It is then straightforward to calculate the percentage of samples that are radicalized for each degree of freedom and see if it changes in a systematic way.
+
+
+## Some simulation results
+
+The true sampling variance seems to be drecreasing as the degrees of freedom are increasing, I always get numbers like
+(df = sampling variance) 3 = 2.2, 5 = 2.0, 10 = 1.8, 100 = 1.7, 1000 = 1.7 (still smaller, 1.71 vs 1.69).
+
