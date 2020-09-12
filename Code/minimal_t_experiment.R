@@ -75,23 +75,35 @@ Sys.time()
 startingg <- Sys.time()
 all_dfs_boot <- parLapply(cl, c(3, 5, 10, 100, 1000), sim_baseline_t_boot,
                     n_obs = n_obs, design_mat = design_etc2,
-                    n_parents = 1e2, n_bss = 1e3)
+                    n_parents = 1e2, n_bss = 1e4)
 Sys.time() - startingg
 
 stopCluster(cl)
 
-df3_boot <- all_dfs_boot[[1]]
-df5_boot <- all_dfs_boot[[2]]
-df10_boot <- all_dfs_boot[[3]]
-df100_boot <- all_dfs_boot[[4]]
-df1000_boot <- all_dfs_boot[[5]]
+df3_boot <- data.frame(all_dfs_boot[[1]])
+df5_boot <- data.frame(all_dfs_boot[[2]])
+df10_boot <- data.frame(all_dfs_boot[[3]])
+df100_boot <- data.frame(all_dfs_boot[[4]])
+df1000_boot <- data.frame(all_dfs_boot[[5]])
 
-var(colVars(df3_boot))
-var(colVars(df5_boot))
-var(colVars(df10_boot))
-var(colVars(df100_boot))
-var(colVars(df1000_boot))
+object_df3 <- df3_boot %>% summarise_if(is.numeric, var)
+object_df5 <- df5_boot %>% summarise_if(is.numeric, var)
+object_df10 <- df10_boot %>% summarise_if(is.numeric, var)
+object_df100 <- df100_boot %>% summarise_if(is.numeric, var)
+object_df1000 <- df1000_boot %>% summarise_if(is.numeric, var)
 
+object_df3_vec <- as.numeric(object_df3[1, ])
+object_df5_vec <- as.numeric(object_df5[1, ])
+object_df10_vec <- as.numeric(object_df10[1, ])
+object_df100_vec <- as.numeric(object_df100[1, ])
+object_df1000_vec <- as.numeric(object_df1000[1, ])
+
+
+var(object_df3_vec)
+var(object_df5_vec)
+var(object_df10_vec)
+var(object_df100_vec)
+var(object_df1000_vec)
 
 for (i in 1:10) {
 
