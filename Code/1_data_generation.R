@@ -9,6 +9,7 @@ library(reshape2)
 library(parallel)
 library(dplyr)
 library(lme4)
+library(gridExtra)
 
 #########################
 ### PARAMETERS TO SET ###
@@ -20,7 +21,7 @@ design_mat <- dgp(n_obs, 2, 2, TRUE)
 n_obs <- 1e2 # Sample size
 n_parents <- 1e2 # no data sets to boostrap from
 n_bss <- 1e3 # no bootstrap replicates per parent
-sim_reps <- 1e5 # no reps to determine true sampling variance
+sim_reps <- 1e4 # no reps to determine true sampling variance
 dfs <- c(3, 4, 5, 6, 7, 8, 9, 10) # degrees of freedom of the dgp
 sigma2 <- 1 # error variance of misspecified models, 0 means estimated freely
 
@@ -87,9 +88,9 @@ sim_baseline_t <- function(df, n_obs, sim_reps, design_etc, sigma2) {
 
 }
 
-##########################
-# Set up parallelization #
-##########################
+###################################
+### Generate baseline variances ###
+###################################
 
 workers <- length(dfs)
 cl <- makeCluster(workers)
@@ -97,31 +98,24 @@ clusterEvalQ(cl, {
         library(dgpsim)
 })
 
-# Run the simulation in parallel
-
 Sys.time()
 starting_time <- Sys.time()
-resdat <- parSapply(cl, dfs, sim_baseline_t,
+baselineDat <- parSapply(cl, dfs, sim_baseline_t,
             n_obs, sim_reps, design_mat, sigma2)
 Sys.time() - starting_time
-
 stopCluster(cl)
-
-# Reasonable names for the data frame with
-# simulation results
 
 names_vec <- c()
 for (i in seq_len(length(dfs))) {
     name <- paste("df", dfs[i], sep = "")
     names_vec <- c(names_vec, name)
 }
-colnames(resdat) <- names_vec
-resdat <- data.frame(resdat)
+colnames(baselineDat) <- names_vec
+baselineDat <- data.frame(baselineDat)
 
 #########################
 ### FOR THE BOOTSTRAP ###
 #########################
-
 
 sim_baseline_t_boot <- function(df, n_obs, design_mat,
                                 n_parents, n_bss, sigma2) {
@@ -185,9 +179,9 @@ sim_baseline_t_boot <- function(df, n_obs, design_mat,
     return(log_bf)
 }
 
-##############################
-### SET UP PARALLELIZATION ###
-##############################
+######################################
+### Generate bootstrap simulations ###
+######################################
 
 cl <- makeCluster(length(dfs))
 clusterEvalQ(cl, {
@@ -196,8 +190,7 @@ clusterEvalQ(cl, {
 
 Sys.time() # Just to be able to see when the sim started
 time_start <- Sys.time()
-    dfs_boot <- parLapply(cl, dfs, sim_baseline_t_boot,
+dfs_boot <- parLapply(cl, dfs, sim_baseline_t_boot,
                         n_obs, design_mat, n_parents, n_bss, sigma2)
 Sys.time() - time_start
-
 stopCluster(cl)

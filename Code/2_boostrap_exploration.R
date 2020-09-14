@@ -18,10 +18,9 @@ for (i in seq_len(length(dfs))) {
 
 }
 
-reference_vars <- resdat %>% summarise_if(is.numeric, var)
+reference_vars <- baselineDat %>% summarise_if(is.numeric, var)
 all_things <- cbind(bss_summary, t(reference_vars))
 colnames(all_things) <- c("avg boot var", "var boot var", "baseline var")
-
 
 #######################
 ### VISUAL ANALYSIS ###
@@ -48,7 +47,7 @@ plot_radicalization <- function(ref_data, boot_df) {
 plots_boot <- list()
 for (i in seq_len(length(dfs))) {
 
-    plots_boot[[i]] <- plot_radicalization(resdat[, i], dfs_boot[[i]])
+    plots_boot[[i]] <- plot_radicalization(baselineDat[, i], dfs_boot[[i]])
 
 }
 
@@ -86,17 +85,15 @@ icc <- data.frame(t(intra_class_correlations))
 colnames(icc) <- names_vec
 icc <- round(icc, digits = 3)
 
-
 #####################################
 ### VISUALISATION OF THE BASELINE ###
 #####################################
 
 # Create a nice graph
-df_all_baseline_melt <- reshape2::melt(resdat)
+df_all_baseline_melt <- reshape2::melt(baselineDat)
 df_all_baseline_melt$variable <- as.factor(df_all_baseline_melt$variable)
 plot_all <- ggplot(df_all_baseline_melt, aes(x = value, col = variable)) +
                 geom_density()
-
 
 ################################
 ### COLLECT ALL THE EVIDENCE ###
@@ -124,3 +121,7 @@ dev.off()
 setup <- paste("seed:", seed_val, "n_obs:", n_obs, "n_parents:", n_parents,
             "n_bss:", n_bss, "sim_reps:", sim_reps, "sigma2:", sigma2)
 write.table(setup, file = paste0(seed_val, ".txt"))
+
+# Save the data sets baselineDat and dfs_boot
+save_name <- paste0(seed_val, ".RData")
+save(baselineDat, dfs_boot, file = save_name)
