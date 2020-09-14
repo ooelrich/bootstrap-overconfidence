@@ -86,6 +86,7 @@ for (i in 1:length(dfs)) {
 }
 icc <- data.frame(t(intra_class_correlations))
 colnames(icc) <- names_vec
+icc <- round(icc, digits = 3)
 
 #####################################
 ### VISUALISATION OF THE BASELINE ###
@@ -101,18 +102,16 @@ plot_all <- ggplot(df_all_baseline_melt, aes(x = value, col = variable)) +
 ### COLLECT ALL THE EVIDENCE ###
 ################################
 
+pdf("baseline_variance.pdf")
+plot_all
+dev.off()
+
 pdf("boostrap_analysis_visual.pdf")
 do.call("grid.arrange", c(plots_boot, ncol = sqrt(length(dfs))))
 dev.off()
 
-pdf("boostrap_analysis_multilevel.pdf")
-grid.table(icc)
-dev.off()
+write.table(icc, file = "multilevel.txt")
 
 pdf("boostrap_analysis_numerical.pdf")
 grid.table(all_things)
-dev.off()
-
-pdf("baseline_variance.pdf")
-plot_all
 dev.off()
