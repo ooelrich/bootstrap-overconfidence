@@ -28,7 +28,7 @@ colnames(all_things) <- c("avg boot var", "var boot var", "baseline var")
 #######################
 
 plot_radicalization <- function(ref_data, boot_df) {
-    df_melt <- melt(boot_df)[, 2:3]
+    df_melt <- reshape2::melt(boot_df)[, 2:3]
     colnames(df_melt) <- c("variable", "value")
     df_melt$variable <- as.factor(df_melt$variable)
     ref_data <- data.frame(ref_data)
@@ -46,7 +46,7 @@ plot_radicalization <- function(ref_data, boot_df) {
 }
 
 plots_boot <- list()
-for (i in 1:length(dfs)) {
+for (i in seq_len(length(dfs))) {
 
     plots_boot[[i]] <- plot_radicalization(resdat[, i], dfs_boot[[i]])
 
@@ -68,20 +68,20 @@ do.call("grid.arrange", c(plots_boot, ncol = sqrt(length(dfs))))
 # comes from does not give a lot of information)
 
 multilevel_var_decomp <- function(df_fix) {
-    df_ret <- melt(df_fix)[, 2:3]
+    df_ret <- reshape2::melt(df_fix)[, 2:3]
     colnames(df_ret) <- c("variable", "value")
     df_ret$variable <- as.factor(df_ret$variable)
 
-    mlfit <- lmer(formula = value ~ 1 + (1|variable), data = df_ret)
+    mlfit <- lme4::lmer(formula = value ~ 1 + (1 | variable), data = df_ret)
 
-    frame_tmp <- data.frame(VarCorr(mlfit))
-    decomp <- frame_tmp[1, 4] / (frame_tmp[1, 4] + frame_tmp[2, 4]) 
+    frame_tmp <- data.frame(lme4::VarCorr(mlfit))
+    decomp <- frame_tmp[1, 4] / (frame_tmp[1, 4] + frame_tmp[2, 4])
 
     return(decomp)
 }
 
 intra_class_correlations <- rep(NA, length(dfs))
-for (i in 1:length(dfs)) {
+for (i in seq_len(length(dfs))) {
     intra_class_correlations[i] <- multilevel_var_decomp(dfs_boot[[i]])
 }
 icc <- data.frame(t(intra_class_correlations))
@@ -93,7 +93,7 @@ icc <- round(icc, digits = 3)
 #####################################
 
 # Create a nice graph
-df_all_baseline_melt <- melt(resdat)
+df_all_baseline_melt <- reshape2::melt(resdat)
 df_all_baseline_melt$variable <- as.factor(df_all_baseline_melt$variable)
 plot_all <- ggplot(df_all_baseline_melt, aes(x = value, col = variable)) +
                 geom_density()

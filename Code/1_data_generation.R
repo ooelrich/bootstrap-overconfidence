@@ -51,7 +51,7 @@ sim_baseline_t <- function(df, n_obs, sim_reps, design_etc) {
 
     for (i in seq_len(sim_reps)) {
 
-        y <- data[, 1] + sqrt( (df - 2) / df) * rt(n_obs, df)
+        y <- data[, 1] + sqrt((df - 2) / df) * rt(n_obs, df)
         m1 <- lm(y ~ 0 + data[, 2])
         m2 <- lm(y ~ 0 + data[, 3])
 
@@ -86,7 +86,7 @@ stopCluster(cl)
 # simulation results
 
 names_vec <- c()
-for (i in 1:length(dfs)) {
+for (i in seq_len(length(dfs))) {
     name <- paste("df", dfs[i], sep = "")
     names_vec <- c(names_vec, name)
 }
