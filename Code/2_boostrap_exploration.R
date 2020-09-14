@@ -122,5 +122,5 @@ dev.off()
 
 # Save the parameters of the simulation setup to a txt document
 setup <- paste("seed:", seed_val, "n_obs:", n_obs, "n_parents:", n_parents,
-    "n_bss:", n_bss, "sim_reps:", sim_reps)
+            "n_bss:", n_bss, "sim_reps:", sim_reps, "sigma2:", sigma2)
 write.table(setup, file = paste0(seed_val, ".txt"))

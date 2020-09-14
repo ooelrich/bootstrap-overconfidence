@@ -20,8 +20,9 @@ design_mat <- dgp(n_obs, 2, 2, TRUE)
 n_obs <- 1e2 # Sample size
 n_parents <- 1e3 # no data sets to boostrap from
 n_bss <- 1e4 # no bootstrap replicates per parent
-sim_reps <- 1e5 # no reps to determine true sampling variance
+sim_reps <- 1e3 # no reps to determine true sampling variance
 dfs <- c(3, 4, 5, 6, 7, 8, 9, 10) # degrees of freedom of the dgp
+sigma2 <- 1 # error variance of misspecified models, 0 means estimated freely
 
 
 # Each experiment is run using a specific design
@@ -39,30 +40,51 @@ dfs <- c(3, 4, 5, 6, 7, 8, 9, 10) # degrees of freedom of the dgp
 # don't specify more different degrees of freedom than
 # you have cores (times two). *sim_reps* determines the
 # number of replicates used to obtain the true sampling
-# variance.
+# variance. If you want to specify the variance of the
+# misspecified model, do this using *sigma2*. If you do
+# not want to specify the error variance, set *sigma2*
+# to be zero.
 
 
 ##################################
 ### BASELINE SAMPLING VARIANCE ###
 ##################################
 
-sim_baseline_t <- function(df, n_obs, sim_reps, design_etc) {
+sim_baseline_t <- function(df, n_obs, sim_reps, design_etc, sigma2) {
 
     log_bf <- rep(NA, sim_reps)
     data <- design_etc
 
-    for (i in seq_len(sim_reps)) {
+    if (sigma2 == 0) {
 
-        y <- data[, 1] + sqrt((df - 2) / df) * rt(n_obs, df)
-        m1 <- lm(y ~ 0 + data[, 2])
-        m2 <- lm(y ~ 0 + data[, 3])
+        for (i in seq_len(sim_reps)) {
 
-        log_ml1 <- sum(pnorm(y, fitted(m1), summary(m1)$sigma, log = TRUE))
-        log_ml2 <- sum(pnorm(y, fitted(m2), summary(m2)$sigma, log = TRUE))
-        log_bf[i] <- log_ml1 - log_ml2
+            y <- data[, 1] + sqrt((df - 2) / df) * rt(n_obs, df)
+            m1 <- lm(y ~ 0 + data[, 2])
+            m2 <- lm(y ~ 0 + data[, 3])
+
+            log_ml1 <- sum(pnorm(y, fitted(m1), summary(m1)$sigma, log = TRUE))
+            log_ml2 <- sum(pnorm(y, fitted(m2), summary(m2)$sigma, log = TRUE))
+            log_bf[i] <- log_ml1 - log_ml2
+        }
+
+    } else {
+
+        for (i in seq_len(sim_reps)) {
+
+            y <- data[, 1] + sqrt((df - 2) / df) * rt(n_obs, df)
+            m1 <- lm(y ~ 0 + data[, 2])
+            m2 <- lm(y ~ 0 + data[, 3])
+
+            log_ml1 <- sum(pnorm(y, fitted(m1), sqrt(sigma2), log = TRUE))
+            log_ml2 <- sum(pnorm(y, fitted(m2), sqrt(sigma2), log = TRUE))
+            log_bf[i] <- log_ml1 - log_ml2
+        }
+
     }
 
     return(log_bf)
+
 }
 
 
@@ -79,7 +101,7 @@ clusterEvalQ(cl, {
 Sys.time()
 starting_time <- Sys.time()
 resdat <- parSapply(cl, dfs, sim_baseline_t,
-            n_obs, sim_reps, design_mat)
+            n_obs, sim_reps, design_mat, sigma2)
 Sys.time() - starting_time
 
 stopCluster(cl)
@@ -100,34 +122,65 @@ resdat <- data.frame(resdat)
 #########################
 
 
-sim_baseline_t_boot <- function(df, n_obs, design_mat, n_parents, n_bss) {
+sim_baseline_t_boot <- function(df, n_obs, design_mat,
+                                n_parents, n_bss, sigma2) {
 
     n_data_sets <- n_parents
     n_bootstrap_reps <- n_bss
     log_bf <- matrix(NA, ncol = n_data_sets, nrow = n_bootstrap_reps)
     data <- design_mat
 
-    for (i in seq_len(n_data_sets)) {
+    if (sigma2 = 0) {
 
-        data[, 1] <- data[, 1] + rt(n_obs, df)
+        for (i in seq_len(n_data_sets)) {
 
-        for (j in seq_len(n_bootstrap_reps)) {
+            data[, 1] <- data[, 1] + rt(n_obs, df)
 
-            index <- sample(seq_len(n_obs), n_obs, replace = TRUE)
-            bss <- data[index, ]
-            mod1 <- lm(bss[, 1] ~ 0 + bss[, 2])
-            mod2 <- lm(bss[, 1] ~ 0 + bss[, 3])
-            log_ml1 <- sum(pnorm(bss[, 1],
-                           fitted(mod1),
-                           summary(mod1)$sigma,
-                           log = T))
-            log_ml2 <- sum(pnorm(bss[, 1],
-                           fitted(mod2),
-                           summary(mod2)$sigma,
-                           log = T))
-            log_bf[j, i] <- log_ml1 - log_ml2
+            for (j in seq_len(n_bootstrap_reps)) {
+
+                index <- sample(seq_len(n_obs), n_obs, replace = TRUE)
+                bss <- data[index, ]
+                mod1 <- lm(bss[, 1] ~ 0 + bss[, 2])
+                mod2 <- lm(bss[, 1] ~ 0 + bss[, 3])
+                log_ml1 <- sum(pnorm(bss[, 1],
+                               fitted(mod1),
+                               summary(mod1)$sigma,
+                               log = T))
+                log_ml2 <- sum(pnorm(bss[, 1],
+                               fitted(mod2),
+                               summary(mod2)$sigma,
+                               log = T))
+                log_bf[j, i] <- log_ml1 - log_ml2
+
+            }
 
         }
+
+    } else {
+
+        for (i in seq_len(n_data_sets)) {
+
+            data[, 1] <- data[, 1] + rt(n_obs, df)
+
+            for (j in seq_len(n_bootstrap_reps)) {
+
+                index <- sample(seq_len(n_obs), n_obs, replace = TRUE)
+                bss <- data[index, ]
+                mod1 <- lm(bss[, 1] ~ 0 + bss[, 2])
+                mod2 <- lm(bss[, 1] ~ 0 + bss[, 3])
+                log_ml1 <- sum(pnorm(bss[, 1],
+                               fitted(mod1),
+                               sqrt(sigma2),
+                               log = T))
+                log_ml2 <- sum(pnorm(bss[, 1],
+                               fitted(mod2),
+                               sqrt(sigma2),
+                               log = T))
+                log_bf[j, i] <- log_ml1 - log_ml2
+
+        }
+
+    }
 
     }
 
