@@ -1,5 +1,6 @@
 #include <RcppArmadillo.h>
 // [[Rcpp::depends(RcppArmadillo)]]
+#include <RcppArmadilloExtensions/sample.h>
 
 // [[Rcpp::export]]
 Rcpp::List lmRcpp(const arma::mat& X, const arma::colvec& y) {
@@ -57,8 +58,53 @@ Rcpp::NumericVector sim_baseline_t_Rcpp(double df, arma::uword n_obs,
     return out;
 }
 
-
+// [[Rcpp::export]]
 arma::mat sim_baseline_t_boot_Rcpp(double df, arma::uword n_obs, const arma::mat& design_mat, arma::uword n_parents,
 arma::uword n_bss, double sigma2) {
+    arma::mat log_bf(n_bss, n_parents);
+
+    Rcpp::NumericVector randomT = Rcpp::rt(n_obs*n_parents, df);
+    arma::mat ySim(randomT.begin(), n_obs, n_parents, true);
+    ySim.each_col() += design_mat.col(0);
+    arma::vec x2 = design_mat.col(1);
+    arma::vec x3 = design_mat.col(2);
     
+    arma::vec y_i;
+    arma::uvec idx = arma::linspace<arma::uvec>(0, n_obs-1, n_obs);
+    arma::vec prob(n_obs, arma::fill::zeros);
+    prob += 1.0/n_obs;
+    arma::vec y_b, x2_b, x3_b, m1Fit, m2Fit;
+    arma::uvec bindx;
+    double log_ml1, log_ml2;
+    double m1Sigma = std::sqrt(sigma2);
+    double m2Sigma = std::sqrt(sigma2);
+    Rcpp::List m1, m2;
+    bool sigmaFlag;
+    if (std::fabs(sigma2)<1e-12) {
+        sigmaFlag = true;
+    } else {
+        sigmaFlag = false;
+    }
+    for (arma::uword i = 0; i < n_parents; ++i) {
+        y_i = ySim.col(i);
+        for (arma::uword j = 0; j < n_bss; ++j) {
+            bindx = Rcpp::RcppArmadillo::sample(idx, n_obs, true, prob);
+            y_b = y_i(bindx);
+            x2 = x2(bindx);
+            x3 = x3(bindx);
+            m1 = lmRcpp(x2, y_b);
+            m2 = lmRcpp(x3, y_b);
+
+            m1Fit = Rcpp::as<arma::vec>(m1[0]);
+            m2Fit = Rcpp::as<arma::vec>(m2[0]);
+            if (sigmaFlag) {
+                m1Sigma = m1[1];
+                m2Sigma = m2[1];
+            }      
+            log_ml1 = arma::sum(dnormRcpp(y_b, m1Fit, m1Sigma));
+            log_ml2 = arma::sum(dnormRcpp(y_b, m2Fit, m2Sigma));
+            log_bf(j, i) = log_ml1 - log_ml2;
+        }
+    }
+    return log_bf;
 }
