@@ -18,9 +18,9 @@ seed_val <- floor(runif(1) * 1e9)
 set.seed(seed_val)
 design_mat <- dgp(n_obs, 2, 2, TRUE)
 n_obs <- 1e2 # Sample size
-n_parents <- 1e3 # no data sets to boostrap from
-n_bss <- 1e4 # no bootstrap replicates per parent
-sim_reps <- 1e3 # no reps to determine true sampling variance
+n_parents <- 1e2 # no data sets to boostrap from
+n_bss <- 1e3 # no bootstrap replicates per parent
+sim_reps <- 1e5 # no reps to determine true sampling variance
 dfs <- c(3, 4, 5, 6, 7, 8, 9, 10) # degrees of freedom of the dgp
 sigma2 <- 1 # error variance of misspecified models, 0 means estimated freely
 
@@ -87,8 +87,9 @@ sim_baseline_t <- function(df, n_obs, sim_reps, design_etc, sigma2) {
 
 }
 
-
-# Set up parallelization
+##########################
+# Set up parallelization #
+##########################
 
 workers <- length(dfs)
 cl <- makeCluster(workers)
@@ -125,21 +126,18 @@ resdat <- data.frame(resdat)
 sim_baseline_t_boot <- function(df, n_obs, design_mat,
                                 n_parents, n_bss, sigma2) {
 
-    n_data_sets <- n_parents
-    n_bootstrap_reps <- n_bss
-    log_bf <- matrix(NA, ncol = n_data_sets, nrow = n_bootstrap_reps)
-    data <- design_mat
+    log_bf <- matrix(NA, ncol = n_parents, nrow = n_bss)
 
-    if (sigma2 = 0) {
+    if (sigma2 == 0) {
 
-        for (i in seq_len(n_data_sets)) {
+        for (i in seq_len(n_parents)) {
 
-            data[, 1] <- data[, 1] + rt(n_obs, df)
+            design_mat[, 1] <- design_mat[, 1] + rt(n_obs, df)
 
-            for (j in seq_len(n_bootstrap_reps)) {
+            for (j in seq_len(n_bss)) {
 
                 index <- sample(seq_len(n_obs), n_obs, replace = TRUE)
-                bss <- data[index, ]
+                bss <- design_mat[index, ]
                 mod1 <- lm(bss[, 1] ~ 0 + bss[, 2])
                 mod2 <- lm(bss[, 1] ~ 0 + bss[, 3])
                 log_ml1 <- sum(pnorm(bss[, 1],
@@ -158,14 +156,14 @@ sim_baseline_t_boot <- function(df, n_obs, design_mat,
 
     } else {
 
-        for (i in seq_len(n_data_sets)) {
+        for (i in seq_len(n_parents)) {
 
-            data[, 1] <- data[, 1] + rt(n_obs, df)
+            design_mat[, 1] <- design_mat[, 1] + rt(n_obs, df)
 
-            for (j in seq_len(n_bootstrap_reps)) {
+            for (j in seq_len(n_bss)) {
 
                 index <- sample(seq_len(n_obs), n_obs, replace = TRUE)
-                bss <- data[index, ]
+                bss <- design_mat[index, ]
                 mod1 <- lm(bss[, 1] ~ 0 + bss[, 2])
                 mod2 <- lm(bss[, 1] ~ 0 + bss[, 3])
                 log_ml1 <- sum(pnorm(bss[, 1],
@@ -178,9 +176,9 @@ sim_baseline_t_boot <- function(df, n_obs, design_mat,
                                log = T))
                 log_bf[j, i] <- log_ml1 - log_ml2
 
-        }
+            }
 
-    }
+        }
 
     }
 
@@ -198,8 +196,8 @@ clusterEvalQ(cl, {
 
 Sys.time() # Just to be able to see when the sim started
 time_start <- Sys.time()
-dfs_boot <- parLapply(cl, dfs, sim_baseline_t_boot,
-                    n_obs, design_mat, n_parents, n_bss)
+    dfs_boot <- parLapply(cl, dfs, sim_baseline_t_boot,
+                        n_obs, design_mat, n_parents, n_bss, sigma2)
 Sys.time() - time_start
 
 stopCluster(cl)
