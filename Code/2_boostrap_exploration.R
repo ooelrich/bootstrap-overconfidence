@@ -18,7 +18,7 @@ for (i in seq_len(length(dfs))) {
 
 }
 
-reference_vars <- baselineDat %>% summarise_if(is.numeric, var)
+reference_vars <- baseline_dat %>% summarise_if(is.numeric, var)
 all_things <- cbind(bss_summary, t(reference_vars))
 colnames(all_things) <- c("avg boot var", "var boot var", "baseline var")
 
@@ -47,7 +47,7 @@ plot_radicalization <- function(ref_data, boot_df) {
 plots_boot <- list()
 for (i in seq_len(length(dfs))) {
 
-    plots_boot[[i]] <- plot_radicalization(baselineDat[, i], dfs_boot[[i]])
+    plots_boot[[i]] <- plot_radicalization(baseline_dat[, i], dfs_boot[[i]])
 
 }
 
@@ -90,7 +90,7 @@ icc <- round(icc, digits = 3)
 #####################################
 
 # Create a nice graph
-df_all_baseline_melt <- reshape2::melt(baselineDat)
+df_all_baseline_melt <- reshape2::melt(baseline_dat)
 df_all_baseline_melt$variable <- as.factor(df_all_baseline_melt$variable)
 plot_all <- ggplot(df_all_baseline_melt, aes(x = value, col = variable)) +
                 geom_density()
@@ -99,20 +99,24 @@ plot_all <- ggplot(df_all_baseline_melt, aes(x = value, col = variable)) +
 ### COLLECT ALL THE EVIDENCE ###
 ################################
 
-baseline_variance <- paste0(seed_val, "_baseline_variance.pdf")
+folder_name <- paste0("run_", seed_val)
+dir.create(folder_name)
+folder_name <- paste0(folder_name, "/")
+
+baseline_variance <- paste0(folder_name, seed_val, "_baseline_variance.pdf")
 pdf(baseline_variance)
 plot_all
 dev.off()
 
-boot_analysis <- paste0(seed_val, "_bootstrap_analysis.pdf")
+boot_analysis <- paste0(folder_name, seed_val, "_bootstrap_analysis.pdf")
 pdf(boot_analysis)
 do.call("grid.arrange", c(plots_boot, ncol = ceiling(sqrt(length(dfs)))))
 dev.off()
 
-multilevel <- paste0(seed_val, "_multilevel.txt")
+multilevel <- paste0(folder_name, seed_val, "_multilevel.txt")
 write.table(icc, file = multilevel)
 
-boot_analysis_num <- paste0(seed_val, "_boot_analysis_num.pdf")
+boot_analysis_num <- paste0(folder_name, seed_val, "_boot_analysis_num.pdf")
 pdf(boot_analysis_num)
 grid.table(all_things)
 dev.off()
@@ -120,8 +124,8 @@ dev.off()
 # Save the parameters of the simulation setup to a txt document
 setup <- paste("seed:", seed_val, "n_obs:", n_obs, "n_parents:", n_parents,
             "n_bss:", n_bss, "sim_reps:", sim_reps, "sigma2:", sigma2)
-write.table(setup, file = paste0(seed_val, ".txt"))
+write.table(setup, file = paste0(folder_name, seed_val, ".txt"))
 
-# Save the data sets baselineDat and dfs_boot
-save_name <- paste0(seed_val, ".RData")
-save(baselineDat, dfs_boot, file = save_name)
+# Save the data sets baseline_dat and dfs_boot
+save_name <- paste0(folder_name, seed_val, ".RData")
+save(baseline_dat, dfs_boot, file = save_name)

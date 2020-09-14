@@ -17,8 +17,8 @@ library(gridExtra)
 
 seed_val <- floor(runif(1) * 1e9)
 set.seed(seed_val)
-design_mat <- dgp(n_obs, 2, 2, TRUE)
 n_obs <- 1e2 # Sample size
+design_mat <- dgp(n_obs, 2, 2, TRUE)
 n_parents <- 1e2 # no data sets to boostrap from
 n_bss <- 1e3 # no bootstrap replicates per parent
 sim_reps <- 1e4 # no reps to determine true sampling variance
@@ -100,7 +100,7 @@ clusterEvalQ(cl, {
 
 Sys.time()
 starting_time <- Sys.time()
-baselineDat <- parSapply(cl, dfs, sim_baseline_t,
+baseline_dat <- parSapply(cl, dfs, sim_baseline_t,
             n_obs, sim_reps, design_mat, sigma2)
 Sys.time() - starting_time
 stopCluster(cl)
@@ -110,8 +110,8 @@ for (i in seq_len(length(dfs))) {
     name <- paste("df", dfs[i], sep = "")
     names_vec <- c(names_vec, name)
 }
-colnames(baselineDat) <- names_vec
-baselineDat <- data.frame(baselineDat)
+colnames(baseline_dat) <- names_vec
+baseline_dat <- data.frame(baseline_dat)
 
 #########################
 ### FOR THE BOOTSTRAP ###
