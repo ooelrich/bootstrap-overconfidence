@@ -52,9 +52,6 @@ for (i in seq_len(length(dfs))) {
 
 }
 
-do.call("grid.arrange", c(plots_boot, ncol = sqrt(length(dfs))))
-
-
 ###########################
 ### MULTILEVEL APPROACH ###
 ###########################
@@ -68,6 +65,7 @@ do.call("grid.arrange", c(plots_boot, ncol = sqrt(length(dfs))))
 # comes from does not give a lot of information)
 
 multilevel_var_decomp <- function(df_fix) {
+
     df_ret <- reshape2::melt(df_fix)[, 2:3]
     colnames(df_ret) <- c("variable", "value")
     df_ret$variable <- as.factor(df_ret$variable)
@@ -88,6 +86,7 @@ icc <- data.frame(t(intra_class_correlations))
 colnames(icc) <- names_vec
 icc <- round(icc, digits = 3)
 
+
 #####################################
 ### VISUALISATION OF THE BASELINE ###
 #####################################
@@ -98,20 +97,30 @@ df_all_baseline_melt$variable <- as.factor(df_all_baseline_melt$variable)
 plot_all <- ggplot(df_all_baseline_melt, aes(x = value, col = variable)) +
                 geom_density()
 
+
 ################################
 ### COLLECT ALL THE EVIDENCE ###
 ################################
 
-pdf("baseline_variance.pdf")
+baseline_variance <- paste0(seed_val, "_baseline_variance.pdf")
+pdf(baseline_variance)
 plot_all
 dev.off()
 
-pdf("boostrap_analysis_visual.pdf")
-do.call("grid.arrange", c(plots_boot, ncol = sqrt(length(dfs))))
+boot_analysis <- paste0(seed_val, "_bootstrap_analysis.pdf")
+pdf(boot_analysis)
+do.call("grid.arrange", c(plots_boot, ncol = ceiling(sqrt(length(dfs)))))
 dev.off()
 
-write.table(icc, file = "multilevel.txt")
+multilevel <- paste0(seed_val, "_multilevel.txt")
+write.table(icc, file = multilevel)
 
-pdf("boostrap_analysis_numerical.pdf")
+boot_analysis_num <- paste0(seed_val, "_boot_analysis_num.pdf")
+pdf(boot_analysis_num)
 grid.table(all_things)
 dev.off()
+
+# Save the parameters of the simulation setup to a txt document
+setup <- paste("seed:", seed_val, "n_obs:", n_obs, "n_parents:", n_parents,
+    "n_bss:", n_bss, "sim_reps:", sim_reps)
+write.table(setup, file = paste0(seed_val, ".txt"))
