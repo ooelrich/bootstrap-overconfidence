@@ -104,7 +104,6 @@ arma::uword n_bss, double sigma2) {
 
             m1Fit = Rcpp::as<arma::vec>(m1[0]);
             m2Fit = Rcpp::as<arma::vec>(m2[0]);
-            m1FitCube.slice(j).col(i) = m1Fit;
             if (sigmaFlag) {
                 m1Sigma = m1[1];
                 m2Sigma = m2[1];
@@ -114,5 +113,5 @@ arma::uword n_bss, double sigma2) {
             log_bf(j, i) = log_ml1 - log_ml2;
         }
     }
-    return Rcpp::List::create(log_bf,m1FitCube);
+    return Rcpp::List::create(log_bf);
 }

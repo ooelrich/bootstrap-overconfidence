@@ -11,6 +11,7 @@ library(dplyr)
 library(lme4)
 library(gridExtra)
 library(microbenchmark)
+library(RcppArmadillo)
 
 ##################################
 ### BASELINE SAMPLING VARIANCE ###
