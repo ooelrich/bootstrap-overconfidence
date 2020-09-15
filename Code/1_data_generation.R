@@ -10,6 +10,7 @@ library(parallel)
 library(dplyr)
 library(lme4)
 library(gridExtra)
+library(microbenchmark)
 
 ##################################
 ### BASELINE SAMPLING VARIANCE ###
@@ -19,13 +20,13 @@ sim_baseline_t <- function(df, n_obs, sim_reps, design_etc, sigma2) {
 
     log_bf <- rep(NA, sim_reps)
     data <- design_etc
-    t_rand <- matrix(0, n_obs, sim_reps)
+    error_terms <- sqrt((df - 2) / df) * rt(n_obs * sim_reps, df)
+    t_rand <- matrix(error_terms, n_obs, sim_reps)
 
-    if (sigma2 == 0) {
+    if (sigma2 == 0) {  
 
         for (i in seq_len(sim_reps)) {
-            t_rand[, i] <- sqrt((df - 2) / df) * rt(n_obs, df)
-            y <- data[, 1] + tRand[, i]
+            y <- data[, 1] + t_rand[, i]
             m1 <- lm(y ~ 0 + data[, 2])
             m2 <- lm(y ~ 0 + data[, 3])
 
