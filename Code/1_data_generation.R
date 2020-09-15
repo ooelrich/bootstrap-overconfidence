@@ -55,17 +55,18 @@ sim_baseline_t <- function(df, n_obs, sim_reps, design_etc, sigma2) {
 
     log_bf <- rep(NA, sim_reps)
     data <- design_etc
+    tRand <- matrix(0, n_obs, sim_reps)
 
     if (sigma2 == 0) {
 
         for (i in seq_len(sim_reps)) {
-
-            y <- data[, 1] + sqrt((df - 2) / df) * rt(n_obs, df)
+            tRand[,i] <- sqrt((df - 2) / df) * rt(n_obs, df)
+            y <- data[, 1] + tRand[,i]
             m1 <- lm(y ~ 0 + data[, 2])
             m2 <- lm(y ~ 0 + data[, 3])
 
-            log_ml1 <- sum(pnorm(y, fitted(m1), summary(m1)$sigma, log = TRUE))
-            log_ml2 <- sum(pnorm(y, fitted(m2), summary(m2)$sigma, log = TRUE))
+            log_ml1 <- sum(dnorm(y, fitted(m1), summary(m1)$sigma, log = TRUE))
+            log_ml2 <- sum(dnorm(y, fitted(m2), summary(m2)$sigma, log = TRUE))
             log_bf[i] <- log_ml1 - log_ml2
         }
 
@@ -77,8 +78,8 @@ sim_baseline_t <- function(df, n_obs, sim_reps, design_etc, sigma2) {
             m1 <- lm(y ~ 0 + data[, 2])
             m2 <- lm(y ~ 0 + data[, 3])
 
-            log_ml1 <- sum(pnorm(y, fitted(m1), sqrt(sigma2), log = TRUE))
-            log_ml2 <- sum(pnorm(y, fitted(m2), sqrt(sigma2), log = TRUE))
+            log_ml1 <- sum(dnorm(y, fitted(m1), sqrt(sigma2), log = TRUE))
+            log_ml2 <- sum(dnorm(y, fitted(m2), sqrt(sigma2), log = TRUE))
             log_bf[i] <- log_ml1 - log_ml2
         }
 
@@ -87,6 +88,8 @@ sim_baseline_t <- function(df, n_obs, sim_reps, design_etc, sigma2) {
     return(log_bf)
 
 }
+
+
 
 ###################################
 ### Generate baseline variances ###
@@ -134,11 +137,11 @@ sim_baseline_t_boot <- function(df, n_obs, design_mat,
                 bss <- design_mat[index, ]
                 mod1 <- lm(bss[, 1] ~ 0 + bss[, 2])
                 mod2 <- lm(bss[, 1] ~ 0 + bss[, 3])
-                log_ml1 <- sum(pnorm(bss[, 1],
+                log_ml1 <- sum(dnorm(bss[, 1],
                                fitted(mod1),
                                summary(mod1)$sigma,
                                log = T))
-                log_ml2 <- sum(pnorm(bss[, 1],
+                log_ml2 <- sum(dnorm(bss[, 1],
                                fitted(mod2),
                                summary(mod2)$sigma,
                                log = T))
@@ -160,11 +163,11 @@ sim_baseline_t_boot <- function(df, n_obs, design_mat,
                 bss <- design_mat[index, ]
                 mod1 <- lm(bss[, 1] ~ 0 + bss[, 2])
                 mod2 <- lm(bss[, 1] ~ 0 + bss[, 3])
-                log_ml1 <- sum(pnorm(bss[, 1],
+                log_ml1 <- sum(dnorm(bss[, 1],
                                fitted(mod1),
                                sqrt(sigma2),
                                log = T))
-                log_ml2 <- sum(pnorm(bss[, 1],
+                log_ml2 <- sum(dnorm(bss[, 1],
                                fitted(mod2),
                                sqrt(sigma2),
                                log = T))
