@@ -125,7 +125,3 @@ dev.off()
 setup <- paste("seed:", seed_val, "n_obs:", n_obs, "n_parents:", n_parents,
             "n_bss:", n_bss, "sim_reps:", sim_reps, "sigma2:", sigma2)
 write.table(setup, file = paste0(folder_name, seed_val, ".txt"))
-
-# Save the data sets baseline_dat and dfs_boot
-save_name <- paste0(folder_name, seed_val, ".RData")
-save(baseline_dat, dfs_boot, file = save_name)

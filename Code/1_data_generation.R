@@ -19,13 +19,13 @@ sim_baseline_t <- function(df, n_obs, sim_reps, design_etc, sigma2) {
 
     log_bf <- rep(NA, sim_reps)
     data <- design_etc
-    tRand <- matrix(0, n_obs, sim_reps)
+    t_rand <- matrix(0, n_obs, sim_reps)
 
     if (sigma2 == 0) {
 
         for (i in seq_len(sim_reps)) {
-            tRand[,i] <- sqrt((df - 2) / df) * rt(n_obs, df)
-            y <- data[, 1] + tRand[,i]
+            t_rand[, i] <- sqrt((df - 2) / df) * rt(n_obs, df)
+            y <- data[, 1] + tRand[, i]
             m1 <- lm(y ~ 0 + data[, 2])
             m2 <- lm(y ~ 0 + data[, 3])
 
