@@ -2,10 +2,10 @@
 Rcpp::sourceCpp("funsRcpp.cpp")
 df <- 5
 n_obs <- 100
-sim_reps <- 20
+sim_reps <- 5
 data <- cbind(rnorm(n_obs), rnorm(n_obs), rnorm(n_obs))
 sigma2 <- 0
-n_bss <- 100
+n_bss <- 2
 
 
 microbenchmark::microbenchmark(R = sim_baseline_t(df, n_obs, sim_reps, data, sigma2),

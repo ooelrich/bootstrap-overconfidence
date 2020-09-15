@@ -63,16 +63,22 @@ arma::mat sim_baseline_t_boot_Rcpp(double df, arma::uword n_obs, const arma::mat
 arma::uword n_bss, double sigma2) {
     arma::mat log_bf(n_bss, n_parents);
 
+    // Generate dependent variable
     Rcpp::NumericVector randomT = Rcpp::rt(n_obs*n_parents, df);
     arma::mat ySim(randomT.begin(), n_obs, n_parents, true);
     ySim.each_col() += design_mat.col(0);
+
+    // Prepare vectors
     arma::vec x2 = design_mat.col(1);
     arma::vec x3 = design_mat.col(2);
-    
     arma::vec y_i;
+
+    // Stuff for bootstrap
     arma::uvec idx = arma::linspace<arma::uvec>(0, n_obs-1, n_obs);
     arma::vec prob(n_obs, arma::fill::zeros);
     prob += 1.0/n_obs;
+
+    // Intialization
     arma::vec y_b, x2_b, x3_b, m1Fit, m2Fit;
     arma::uvec bindx;
     double log_ml1, log_ml2;
@@ -85,18 +91,20 @@ arma::uword n_bss, double sigma2) {
     } else {
         sigmaFlag = false;
     }
+    
     for (arma::uword i = 0; i < n_parents; ++i) {
         y_i = ySim.col(i);
         for (arma::uword j = 0; j < n_bss; ++j) {
             bindx = Rcpp::RcppArmadillo::sample(idx, n_obs, true, prob);
             y_b = y_i(bindx);
-            x2 = x2(bindx);
-            x3 = x3(bindx);
-            m1 = lmRcpp(x2, y_b);
-            m2 = lmRcpp(x3, y_b);
+            x2_b = x2(bindx);
+            x3_b = x3(bindx);
+            m1 = lmRcpp(x2_b, y_b);
+            m2 = lmRcpp(x3_b, y_b);
 
             m1Fit = Rcpp::as<arma::vec>(m1[0]);
             m2Fit = Rcpp::as<arma::vec>(m2[0]);
+            m1FitCube.slice(j).col(i) = m1Fit;
             if (sigmaFlag) {
                 m1Sigma = m1[1];
                 m2Sigma = m2[1];
@@ -106,5 +114,5 @@ arma::uword n_bss, double sigma2) {
             log_bf(j, i) = log_ml1 - log_ml2;
         }
     }
-    return log_bf;
+    return Rcpp::List::create(log_bf,m1FitCube);
 }
