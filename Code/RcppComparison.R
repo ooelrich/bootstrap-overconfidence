@@ -1,5 +1,5 @@
 # Need to source 1_data_generation.R first
-Rcpp::sourceCpp("funsRcpp.cpp")
+Rcpp::sourceCpp("Code/funsRcpp.cpp")
 df <- 5
 n_obs <- 100
 sim_reps <- 5

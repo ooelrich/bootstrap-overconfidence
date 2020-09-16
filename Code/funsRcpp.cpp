@@ -113,5 +113,5 @@ arma::uword n_bss, double sigma2) {
             log_bf(j, i) = log_ml1 - log_ml2;
         }
     }
-    return Rcpp::List::create(log_bf);
+    return log_bf;
 }
