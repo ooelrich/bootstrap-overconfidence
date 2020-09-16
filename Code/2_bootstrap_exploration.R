@@ -26,30 +26,37 @@ colnames(all_things) <- c("avg boot var", "var boot var", "baseline var")
 ### VISUAL ANALYSIS ###
 #######################
 
-plot_radicalization <- function(ref_data, boot_df) {
-    df_melt <- reshape2::melt(boot_df)[, 2:3]
-    colnames(df_melt) <- c("variable", "value")
-    df_melt$variable <- as.factor(df_melt$variable)
-    ref_data <- data.frame(ref_data)
-    colnames(ref_data) <- "log_BF"
-    radical_plot <- ggplot() +
-                    geom_density(data = df_melt,
-                        aes(x = value, color = variable)) +
-                    geom_density(data = ref_data,
-                        aes(x = log_BF),
-                        color = "black",
-                        size = 1.5) +
+if (n_parents < 1001) {
+
+    plot_radicalization <- function(ref_data, boot_df) {
+        df_melt <- reshape2::melt(boot_df)[, 2:3]
+        colnames(df_melt) <- c("variable", "value")
+        df_melt$variable <- as.factor(df_melt$variable)
+        ref_data <- data.frame(ref_data)
+        colnames(ref_data) <- "log_BF"
+        radical_plot <- ggplot() +
+                        geom_density(data = df_melt,
+                                     aes(x = value,
+                                     color = variable)) +
+                        geom_density(data = ref_data,
+                                     aes(x = log_BF),
+                                     color = "black",
+                                     size = 1.5) +
                     theme_minimal() +
                     theme(legend.position = "none")
-    return(radical_plot)
+        return(radical_plot)
+    }
+
+    plots_boot <- list()
+    for (i in seq_len(length(dfs))) {
+
+        plots_boot[[i]] <- plot_radicalization(baseline_dat[, i], dfs_boot[[i]])
+
+    }
+
 }
 
-plots_boot <- list()
-for (i in seq_len(length(dfs))) {
 
-    plots_boot[[i]] <- plot_radicalization(baseline_dat[, i], dfs_boot[[i]])
-
-}
 
 ###########################
 ### MULTILEVEL APPROACH ###
@@ -108,10 +115,14 @@ pdf(baseline_variance)
 plot_all
 dev.off()
 
-boot_analysis <- paste0(folder_name, seed_val, "_bootstrap_analysis.pdf")
-pdf(boot_analysis)
-do.call("grid.arrange", c(plots_boot, ncol = ceiling(sqrt(length(dfs)))))
-dev.off()
+if (n_parents < 1001) {
+
+    boot_analysis <- paste0(folder_name, seed_val, "_bootstrap_analysis.pdf")
+    pdf(boot_analysis)
+    do.call("grid.arrange", c(plots_boot, ncol = ceiling(sqrt(length(dfs)))))
+    dev.off()
+
+}
 
 multilevel <- paste0(folder_name, seed_val, "_multilevel.txt")
 write.table(icc, file = multilevel)
