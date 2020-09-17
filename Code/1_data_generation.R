@@ -1,17 +1,4 @@
-#######################
-### PACKAGES NEEDED ###
-#######################
 
-library(dgpsim)
-library(ggplot2)
-library(cowplot)
-library(reshape2)
-library(parallel)
-library(dplyr)
-library(lme4)
-library(gridExtra)
-library(microbenchmark)
-library(RcppArmadillo)
 
 ##################################
 ### BASELINE SAMPLING VARIANCE ###
