@@ -76,8 +76,6 @@ sim_baseline_t_boot <- function(df, n_obs, design_mat,
     return(log_bf)
 }
 
-
-
 #log_linear_regression_variable <- function(sigma, y, m) {
 #    sum(dnorm(y, fitted(m), sigma(m), log = TRUE))
 #}
