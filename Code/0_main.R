@@ -2,6 +2,8 @@
 ### PACKAGES NEEDED ###
 #######################
 
+rm(list = ls())
+
 library(dgpsim)
 library(ggplot2)
 library(cowplot)
@@ -18,12 +20,11 @@ library(gridExtra)
 ### PARAMETERS TO SET ###
 #########################
 
-rm(list = ls())
 
 seed_val <- floor(runif(1) * 1e9)
 set.seed(seed_val)
 n_obs <- 1e2 # Sample size
-design_mat <- dgp(n_obs, 2, 2, TRUE)
+design_mat <- dgp(n_obs, 2, 2) # NEED TO UPDATE
 n_parents <- 1e1 # no data sets to boostrap from
 n_bss <- 1e2 # no bootstrap replicates per parent
 sim_reps <- 1e4 # no reps to determine true sampling variance
