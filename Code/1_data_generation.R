@@ -4,14 +4,13 @@
 ### HELPER FUNCTIONS ###
 ########################
 
-sigma_fn <- if (sigma2 > 0) {
-    function(m) {
-        sqrt(sigma2)
-    }
-} else {
-    function(m) {
-        summary(m)$sigma
-    }     
+sigma_fn_gen <- function(sigma2) {
+    if (sigma2 > 0) {
+        sigma <- sqrt(sigma2)
+        function(m) { sigma }
+    } else {
+        function(m) { summary(m)$sigma }
+    } 
 }
 
 ##################################
@@ -20,6 +19,7 @@ sigma_fn <- if (sigma2 > 0) {
 
 sim_baseline_t <- function(df, n_obs, sim_reps, design_etc, sigma2) {
 
+    sigma_fn <- sigma_fn_gen(sigma2)
     log_bf <- rep(NA, sim_reps)
     error_terms <- sqrt((df - 2) / df) * rt(n_obs * sim_reps, df)
     t_rand <- matrix(error_terms, n_obs, sim_reps)
@@ -51,7 +51,7 @@ sim_baseline_t <- function(df, n_obs, sim_reps, design_etc, sigma2) {
 
 workers <- length(dfs)
 cl <- makeCluster(workers)
-clusterExport(cl, "sigma_fn")
+clusterExport(cl, "sigma_fn_gen")
 clusterEvalQ(cl, {
         library(dgpsim)
 })
@@ -79,27 +79,21 @@ sim_baseline_t_boot <- function(df, n_obs, design_mat,
                                 n_parents, n_bss, sigma2) {
 
     log_bf <- matrix(NA, ncol = n_parents, nrow = n_bss)
-
+    sigma_fn <- sigma_fn_gen(sigma2)
 
     for (i in seq_len(n_parents)) {
 
         data_temp <- design_mat
-        data_temp[, 1] <- design_mat[, 1] + rt(n_obs, df)
+        data_temp[, 1] <- design_mat[, 1] + sqrt((df - 2) / df) * rt(n_obs, df)
 
         for (j in seq_len(n_bss)) {
 
             index <- sample(seq_len(n_obs), n_obs, replace = TRUE)
             bss <- data_temp[index, ]
-            mod1 <- lm(bss[, 1] ~ 0 + bss[, 2])
-            mod2 <- lm(bss[, 1] ~ 0 + bss[, 3])
-            log_ml1 <- sum(dnorm(bss[, 1],
-                               fitted(mod1),
-                               sigma_fn(mod1),
-                               log = T))
-            log_ml2 <- sum(dnorm(bss[, 1],
-                               fitted(mod2),
-                               sigma_fn(mod2),
-                               log = T))
+            m1 <- lm(bss[, 1] ~ 0 + bss[, 2])
+            m2 <- lm(bss[, 1] ~ 0 + bss[, 3])
+            log_ml1 <- sum(dnorm(bss[, 1], fitted(m1), sigma_fn(m1), log = T))
+            log_ml2 <- sum(dnorm(bss[, 1], fitted(m2), sigma_fn(m2), log = T))
             log_bf[j, i] <- log_ml1 - log_ml2
 
         }
@@ -114,7 +108,7 @@ sim_baseline_t_boot <- function(df, n_obs, design_mat,
 ######################################
 
 cl <- makeCluster(length(dfs))
-clusterExport(cl, "sigma_fn")
+clusterExport(cl, "sigma_fn_gen")
 clusterEvalQ(cl, {
         library(dgpsim)
 })

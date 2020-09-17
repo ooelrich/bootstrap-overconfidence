@@ -15,11 +15,9 @@ library(gridExtra)
 #library(microbenchmark)
 #library(RcppArmadillo)
 
-
 #########################
 ### PARAMETERS TO SET ###
 #########################
-
 
 seed_val <- floor(runif(1) * 1e9)
 set.seed(seed_val)
