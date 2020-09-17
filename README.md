@@ -1,8 +1,15 @@
-# Overconfidence in boostrap-based estimates of model fit based on likelihoods
+# Overconfidence in bootstrap-based estimates of model fit based on likelihoods
 
 Many measure used to evaluate models are based on likelihoods. For a given model, or for a given model comparison, any likelyhood based estimate will vary somewhat when evaluated based on different samples from a given data-generating process. We can think of this as a sampling variability inherent in a certain model evaluation or comparison. Bootstrapping is often used to estimate the uncertainty of estimates, and as it approximates the data-generating process it could be used to estimate this sampling variability.
 
 My conjecture is that the variability in the boostrap based estimate, compared to that based on samples from the dgp, will vary greatly as a function of the entropy of the data-generating process, fatter tails leading to more *non-representative* results.
+
+## To-do
+
+[ ] Implement new *sigma2* function
+[ ] Implement new rescaled error function
+[ ] Replace inner for loop with function
+
 
 ## Testing out the hypothesis with a simulation
 
