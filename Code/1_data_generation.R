@@ -6,6 +6,16 @@
 
 sim_baseline_t <- function(df, n_obs, sim_reps, design_etc, sigma2) {
 
+    sigma_fn <- if (sigma2 > 0) {
+        function(m) {
+            sqrt(sigma2)
+        }
+    } else {
+        function(m) {
+            summary(m)$sigma
+        }     
+    }
+
     log_bf <- rep(NA, sim_reps)
     data <- design_etc
     error_terms <- sqrt((df - 2) / df) * rt(n_obs * sim_reps, df)
@@ -27,7 +37,7 @@ sim_baseline_t <- function(df, n_obs, sim_reps, design_etc, sigma2) {
 
         for (i in seq_len(sim_reps)) {
 
-            y <- data[, 1] + sqrt((df - 2) / df) * rt(n_obs, df)
+            y <- data[, 1] + t_rand[, i]
             m1 <- lm(y ~ 0 + data[, 2])
             m2 <- lm(y ~ 0 + data[, 3])
 
@@ -43,6 +53,9 @@ sim_baseline_t <- function(df, n_obs, sim_reps, design_etc, sigma2) {
 }
 
 
+log_linear_regression_variable <- function(sigma, y, m) {
+    sum(dnorm(y, fitted(m), sigma(m), log = TRUE))
+}
 
 ###################################
 ### Generate baseline variances ###
