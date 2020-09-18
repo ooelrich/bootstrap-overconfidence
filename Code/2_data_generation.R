@@ -11,6 +11,19 @@ sigma_fn_gen <- function(sigma2) {
     } 
 }
 
+error_matrix <- function(n_row, n_col, df) {
+    t_errors <- sqrt((df - 2) / df) * rt(n_row * n_col, df)
+    return(matrix(t_errors, n_row, n_col))
+}
+
+log_bf_fun <- function(data, sigma_fn) {
+    m1 <- lm(data[, 1] ~ 0 + data[, 2])
+    m2 <- lm(data[, 1] ~ 0 + data[, 3])
+    log_ml1 <- sum(dnorm(bss[, 1], fitted(m1), sigma_fn(m1), log = T))
+    log_ml2 <- sum(dnorm(bss[, 1], fitted(m2), sigma_fn(m2), log = T))
+    return(log_ml1 - log_ml2)
+}
+
 ##################################
 ### BASELINE SAMPLING VARIANCE ###
 ##################################
@@ -19,19 +32,12 @@ sim_baseline_t <- function(df, n_obs, sim_reps, design_mat, sigma2) {
 
     sigma_fn <- sigma_fn_gen(sigma2)
     log_bf <- rep(NA, sim_reps)
-    error_terms <- sqrt((df - 2) / df) * rt(n_obs * sim_reps, df)
-    t_rand <- matrix(error_terms, n_obs, sim_reps)
+    t_err <- error_matrix(n_row = n_obs, n_col = sim_reps, df)
 
     for (i in seq_len(sim_reps)) {        
-
-        y <- design_mat[, 1] + t_rand[, i]
-        m1 <- lm(y ~ 0 + design_mat[, 2])
-        m2 <- lm(y ~ 0 + design_mat[, 3])
-
-        log_ml1 <- sum(dnorm(y, fitted(m1), sigma_fn(m1), log = TRUE))
-        log_ml2 <- sum(dnorm(y, fitted(m2), sigma_fn(m2), log = TRUE))
-        log_bf[i] <- log_ml1 - log_ml2
-
+        data_temp <- design_mat
+        data_temp[, 1] <- design_mat[, 1] + t_err[, i]
+        log_bf[i] <- log_bf_fun(data_temp, sigma_fn)
     }
 
     return(log_bf)
@@ -47,27 +53,18 @@ sim_baseline_t_boot <- function(df, n_obs, design_mat,
 
     log_bf <- matrix(NA, ncol = n_parents, nrow = n_bss)
     sigma_fn <- sigma_fn_gen(sigma2)
-
-    log_bf_est <- function(bss) {
-
-        m1 <- lm(bss[, 1] ~ 0 + bss[, 2])
-        m2 <- lm(bss[, 1] ~ 0 + bss[, 3])
-        log_ml1 <- sum(dnorm(bss[, 1], fitted(m1), sigma_fn(m1), log = T))
-        log_ml2 <- sum(dnorm(bss[, 1], fitted(m2), sigma_fn(m2), log = T))
-        return(log_ml1 - log_ml2)
-
-    }
+    t_err <- error_matrix(n_row = n_obs, n_col = n_parents, df)
 
     for (i in seq_len(n_parents)) {
 
         data_temp <- design_mat
-        data_temp[, 1] <- design_mat[, 1] + sqrt((df - 2) / df) * rt(n_obs, df)
+        data_temp[, 1] <- design_mat[, 1] + t_err[, i]
 
         for (j in seq_len(n_bss)) {
 
             index <- sample(seq_len(n_obs), n_obs, replace = TRUE)
             bss <- data_temp[index, ]
-            log_bf[j, i] <- log_bf_est(bss)
+            log_bf[j, i] <- log_bf_fun(bss, sigma_fn)
 
         }
 
