@@ -41,7 +41,6 @@ sim_baseline_t <- function(df, n_obs, sim_reps, design_mat, sigma2) {
     }
 
     return(log_bf)
-
 }
 
 #########################
@@ -61,13 +60,10 @@ sim_baseline_t_boot <- function(df, n_obs, design_mat,
         data_temp[, 1] <- design_mat[, 1] + t_err[, i]
 
         for (j in seq_len(n_bss)) {
-
             index <- sample(seq_len(n_obs), n_obs, replace = TRUE)
             bss <- data_temp[index, ]
             log_bf[j, i] <- log_bf_fun(bss, sigma_fn)
-
         }
-
     }
 
     return(log_bf)
@@ -86,10 +82,10 @@ clusterEvalQ(cl, {
 
 Sys.time()
 starting_time <- Sys.time()
-baseline_dat <- parSapply(cl, dfs, sim_baseline_t,
-            n_obs, sim_reps, design_mat, sigma2)
-dfs_boot <- parLapply(cl, dfs, sim_baseline_t_boot,
-                        n_obs, design_mat, n_parents, n_bss, sigma2)
+baseline_dat <- parSapply(cl, dfs, sim_baseline_t, n_obs,
+                        sim_reps, design_mat, sigma2)
+dfs_boot <- parLapply(cl, dfs, sim_baseline_t_boot, n_obs,
+                    design_mat, n_parents, n_bss, sigma2)
 stopCluster(cl)
 
 names_vec <- c()
