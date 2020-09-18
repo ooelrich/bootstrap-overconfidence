@@ -19,8 +19,8 @@ error_matrix <- function(n_row, n_col, df) {
 log_bf_fun <- function(data, sigma_fn) {
     m1 <- lm(data[, 1] ~ 0 + data[, 2])
     m2 <- lm(data[, 1] ~ 0 + data[, 3])
-    log_ml1 <- sum(dnorm(bss[, 1], fitted(m1), sigma_fn(m1), log = T))
-    log_ml2 <- sum(dnorm(bss[, 1], fitted(m2), sigma_fn(m2), log = T))
+    log_ml1 <- sum(dnorm(data[, 1], fitted(m1), sigma_fn(m1), log = T))
+    log_ml2 <- sum(dnorm(data[, 1], fitted(m2), sigma_fn(m2), log = T))
     return(log_ml1 - log_ml2)
 }
 
@@ -79,7 +79,7 @@ sim_baseline_t_boot <- function(df, n_obs, design_mat,
 
 workers <- length(dfs)
 cl <- makeCluster(workers)
-clusterExport(cl, "sigma_fn_gen")
+clusterExport(cl, c("sigma_fn_gen", "error_matrix", "log_bf_fun"))
 clusterEvalQ(cl, {
         library(dgpsim)
 })

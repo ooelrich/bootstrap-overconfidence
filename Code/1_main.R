@@ -11,9 +11,9 @@ set.seed(seed_val)
 n_obs <- 1e2 # Sample size
 design_mat <- dgp(n_obs, 2, 2, trueMean = TRUE)
 n_parents <- 1e3 # no data sets to boostrap from
-n_bss <- 1e4 # no bootstrap replicates per parent
+n_bss <- 1e3 # no bootstrap replicates per parent
 sim_reps <- 1e5 # no reps to determine true sampling variance
-dfs <- c(3, 4, 5, 6, 8, 10) # degrees of freedom of the dgp
+dfs <- c(3, 4, 5, 6) # degrees of freedom of the dgp
 sigma2 <- 0 # error variance of misspecified models, 0 means estimated freely
 
 ####################
