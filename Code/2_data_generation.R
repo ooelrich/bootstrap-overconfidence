@@ -15,7 +15,7 @@ sigma_fn_gen <- function(sigma2) {
 ### BASELINE SAMPLING VARIANCE ###
 ##################################
 
-sim_baseline_t <- function(df, n_obs, sim_reps, design_etc, sigma2) {
+sim_baseline_t <- function(df, n_obs, sim_reps, design_mat, sigma2) {
 
     sigma_fn <- sigma_fn_gen(sigma2)
     log_bf <- rep(NA, sim_reps)
@@ -24,9 +24,9 @@ sim_baseline_t <- function(df, n_obs, sim_reps, design_etc, sigma2) {
 
     for (i in seq_len(sim_reps)) {        
 
-        y <- design_etc[, 1] + t_rand[, i]
-        m1 <- lm(y ~ 0 + design_etc[, 2])
-        m2 <- lm(y ~ 0 + design_etc[, 3])
+        y <- design_mat[, 1] + t_rand[, i]
+        m1 <- lm(y ~ 0 + design_mat[, 2])
+        m2 <- lm(y ~ 0 + design_mat[, 3])
 
         log_ml1 <- sum(dnorm(y, fitted(m1), sigma_fn(m1), log = TRUE))
         log_ml2 <- sum(dnorm(y, fitted(m2), sigma_fn(m2), log = TRUE))
