@@ -76,10 +76,6 @@ sim_baseline_t_boot <- function(df, n_obs, design_mat,
     return(log_bf)
 }
 
-#log_linear_regression_variable <- function(sigma, y, m) {
-#    sum(dnorm(y, fitted(m), sigma(m), log = TRUE))
-#}
-
 ###################################
 ### Generate baseline variances ###
 ###################################
@@ -106,20 +102,3 @@ for (i in seq_len(length(dfs))) {
 }
 colnames(baseline_dat) <- names_vec
 baseline_dat <- data.frame(baseline_dat)
-
-
-######################################
-### Generate bootstrap simulations ###
-######################################
-
-#cl <- makeCluster(length(dfs))
-#clusterExport(cl, "sigma_fn_gen")
-#clusterEvalQ(cl, {
-#        library(dgpsim)
-#})
-#
-#Sys.time() # Just to be able to see when the sim started
-#time_start <- Sys.time()
-#
-#Sys.time() - time_start
-#stopCluster(cl)
