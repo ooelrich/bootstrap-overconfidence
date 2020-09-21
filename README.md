@@ -7,7 +7,7 @@ My conjecture is that the variability in the bootstrap based estimate, compared 
 ## To-do
 
 - [x] Implement new *sigma2* function
-- [ ] Implement new rescaled error function
+- [x] Implement new rescaled error function
 - [x] Replace inner for loop with function
 
 
