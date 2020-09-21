@@ -1,2 +1,0 @@
-"x"
-"1" "seed: 529003510 n_obs: 100 n_parents: 1000 n_bss: 1000 sim_reps: 1e+05 sigma2: 0"
