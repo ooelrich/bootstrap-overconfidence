@@ -9,7 +9,7 @@ source("Code/0_packages.R")
 seed_val <- floor(runif(1) * 1e9)
 set.seed(seed_val)
 n_obs <- 1e2 # Sample size
-design_mat <- dgp(n_obs, c(1, 1), trueMean = TRUE)
+design_mat <- dgp(n_obs, c(1, 1), true_mean = TRUE)
 n_parents <- 3e3 # no data sets to boostrap from
 n_bss <- 3e3 # no bootstrap replicates per parent
 sim_reps <- 1e6 # no reps to determine true sampling variance
