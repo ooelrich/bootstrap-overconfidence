@@ -1,7 +1,7 @@
 # Dichotomize the data
 
 # The bootstrap data
-is_radical <- function(x) { abs(x) > 10}
+is_radical <- function(x) { abs(x) > 5}
 df_vals <- length(dfs_boot)
 data_shell <- matrix(NA, nrow = n_parents, ncol = df_vals)
 
@@ -25,8 +25,15 @@ truth <- rep(summary_baseline_jeff, each  = n_parents)
 shell_melt <- cbind(shell_melt, truth)
 # Plotting it all
 
+# Calculate the mean for each value of df and add to data frame
+
+setDT(shell_melt)[, mean_theta := mean(radical), by = df]
+
+pdf("whatever_name_you_want.pdf")
 ggplot(shell_melt, aes(x = radical)) +
-    geom_density() + geom_point(aes(x = truth, y = 0), col = "red") + facet_grid(rows = vars(df))
-
-
-head(shell_melt)
+    scale_x_continuous(expand = c(0, 0)) +
+    scale_y_continuous(expand = c(0, 0)) +
+    geom_density() + geom_point(aes(x = truth, y = 0.1), col = "red") +
+    geom_point(aes(x = mean_theta, y = 0.1), col = "black") +
+    facet_grid(rows = vars(df))
+dev.off()

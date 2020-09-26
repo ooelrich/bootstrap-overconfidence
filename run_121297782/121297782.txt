@@ -1,0 +1,2 @@
+"x"
+"1" "seed: 121297782 n_obs: 100 n_parents: 1000 n_bss: 1000 sim_reps: 1e+06 sigma2: 0"
