@@ -12,7 +12,7 @@ n_obs <- 1e3 # Sample size
 design_mat <- dgp(n_obs, c(1, 1), true_mean = TRUE)
 n_parents <- 3e2 # no data sets to boostrap from
 n_bss <- 3e2 # no bootstrap replicates per parent
-sim_reps <- 1e6 # no reps to determine true sampling variance
+sim_reps <- 1e5 # no reps to determine true sampling variance
 dfs <- c(2.5, 5, 10, 30) # degrees of freedom of the dgp
 sigma2 <- 0 # error variance of misspecified models, 0 means estimated freely
 
