@@ -1,7 +1,7 @@
 # Dichotomize the data
 
 # The bootstrap data
-is_radical <- function(x) { abs(x) > 10}
+is_radical <- function(x) { abs(x) > 5 }
 df_vals <- length(dfs_boot)
 data_shell <- matrix(NA, nrow = n_parents, ncol = df_vals)
 
@@ -29,7 +29,7 @@ shell_melt <- cbind(shell_melt, truth)
 
 setDT(shell_melt)[, mean_theta := mean(radical), by = df]
 
-pdf("large_samp_jeff10.pdf")
+pdf("large_samp_jeff5B.pdf")
 ggplot(shell_melt, aes(x = radical)) +
     scale_x_continuous(expand = c(0, 0)) +
     scale_y_continuous(expand = c(0, 0)) +
