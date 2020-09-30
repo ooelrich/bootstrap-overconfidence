@@ -29,11 +29,22 @@ shell_melt <- cbind(shell_melt, truth)
 
 setDT(shell_melt)[, mean_theta := mean(radical), by = df]
 
-pdf("large_samp_jeff10C.pdf")
+shell_melt$df <- as.numeric(shell_melt$df)
+
+for (i in seq_len(length(dfs))) {
+    shell_melt[shell_melt$df == i, 1] <- dfs[i]
+}
+
+shell_melt$df <- as.factor(shell_melt$df)
+
+pdf("n100_jeff10.pdf")
 ggplot(shell_melt, aes(x = radical)) +
-    scale_x_continuous(expand = c(0, 0)) +
-    scale_y_continuous(expand = c(0, 0)) +
     geom_density() + geom_point(aes(x = truth, y = 0.1), col = "red") +
     geom_point(aes(x = mean_theta, y = 0.1), col = "black") +
-    facet_grid(rows = vars(df))
+    facet_grid(rows = vars(df), scales = "free_x", labeller = label_both) +
+    xlab("Probability of observing conclusive evidence") + ylab("Density") +
+    #theme_tufte() + #theme(axis.line = element_line()) +
+    scale_x_continuous(expand = c(0, 0), limits = c(0, 1)) +
+    scale_y_continuous(expand = c(0, 0), limits = c(0, 4)) +
+    theme_bw() + theme(text = element_text(size = 15))
 dev.off()
