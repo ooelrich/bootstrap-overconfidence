@@ -1,7 +1,7 @@
 # Dichotomize the data
 
 # The bootstrap data
-is_radical <- function(x) { abs(x) > 10 }
+is_radical <- function(x) { abs(x) > 5 }
 df_vals <- length(dfs_boot)
 data_shell <- matrix(NA, nrow = n_parents, ncol = df_vals)
 
@@ -37,7 +37,7 @@ for (i in seq_len(length(dfs))) {
 
 shell_melt$df <- as.factor(shell_melt$df)
 
-pdf("n100_jeff10.pdf")
+pdf("n50_jeff5.pdf")
 ggplot(shell_melt, aes(x = radical)) +
     geom_density() + geom_point(aes(x = truth, y = 0.1), col = "red") +
     geom_point(aes(x = mean_theta, y = 0.1), col = "black") +
@@ -45,6 +45,6 @@ ggplot(shell_melt, aes(x = radical)) +
     xlab("Probability of observing conclusive evidence") + ylab("Density") +
     #theme_tufte() + #theme(axis.line = element_line()) +
     scale_x_continuous(expand = c(0, 0), limits = c(0, 1)) +
-    scale_y_continuous(expand = c(0, 0), limits = c(0, 4)) +
+    scale_y_continuous(expand = c(0, 0), limits = c(0, 3)) +
     theme_bw() + theme(text = element_text(size = 15))
 dev.off()
