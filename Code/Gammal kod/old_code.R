@@ -39,3 +39,28 @@ for (i in 1:100) {
     medians <- apply(stromberg_repl, 2, median)
     var[i] <- var(medians)
 }
+
+
+
+
+
+# B = 100, n = 10, 10 %, probability of breakdown roughly 80%
+first_prob <- 1 - (1-(10*(1-pbinom(4, 10, 0.1))))^100
+
+
+# B = 200, n = 10, 10 %, probability of breakdown roughly 96%
+1 - (1-(10*(1-pbinom(4, 10, 0.1))))^200
+
+
+# B = 400, n = 10, 10 %, probability of breakdown roughly 99.86%
+1 - (1-(10*(1-pbinom(4, 10, 0.1))))^400
+
+dattaro <- rbinom(1000, 100, first_prob)
+
+hist(dattaro)
+
+sum(dattaro < 72.5) / length(dattaro)
+
+# Try the same approach for 20 observations
+
+1 - (1-(20*(1-pbinom(10, 20, 0.1))))^100
