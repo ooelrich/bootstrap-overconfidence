@@ -17,6 +17,7 @@ for (i in seq_len(length(dfs))) {
     bss_summary[i, 2] <- var(bss_vars)
 
     jkn_vars <- data.frame(dfs_boot[[i]][[2]]) %>% summarise_if(is.numeric, var)
+    jkn_vars <- jkn_vars * (n_obs - 1)^2 / n_obs
     jkn_vars <- as.numeric(jkn_vars)
     bss_summary[i, 3] <- mean(jkn_vars)
     bss_summary[i, 4] <- var(jkn_vars)
