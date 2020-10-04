@@ -7,20 +7,25 @@
 ### DIFFERENT MEASURES OF VARIANCE ###
 ######################################
 
-bss_summary <- matrix(NA, nrow = length(dfs), ncol = 2)
+bss_summary <- matrix(NA, nrow = length(dfs), ncol = 4)
 
 for (i in seq_len(length(dfs))) {
 
-    bss_vars <- data.frame(dfs_boot[[i]]) %>% summarise_if(is.numeric, var)
+    bss_vars <- data.frame(dfs_boot[[i]][[1]]) %>% summarise_if(is.numeric, var)
     bss_vars <- as.numeric(bss_vars)
     bss_summary[i, 1] <- mean(bss_vars)
     bss_summary[i, 2] <- var(bss_vars)
 
+    jkn_vars <- data.frame(dfs_boot[[i]][[2]]) %>% summarise_if(is.numeric, var)
+    jkn_vars <- as.numeric(jkn_vars)
+    bss_summary[i, 3] <- mean(jkn_vars)
+    bss_summary[i, 4] <- var(jkn_vars)
 }
 
 reference_vars <- baseline_dat %>% summarise_if(is.numeric, var)
 all_things <- cbind(bss_summary, t(reference_vars))
-colnames(all_things) <- c("avg boot var", "var boot var", "baseline var")
+colnames(all_things) <- c("avg boot var", "var boot var", "avg jack var", "var jack var", "baseline var")
+all_things <- round(all_things)
 
 #######################
 ### VISUAL ANALYSIS ###
@@ -50,7 +55,7 @@ if (n_parents < 1001) {
     plots_boot <- list()
     for (i in seq_len(length(dfs))) {
 
-        plots_boot[[i]] <- plot_radicalization(baseline_dat[, i], dfs_boot[[i]])
+        plots_boot[[i]] <- plot_radicalization(baseline_dat[, i], dfs_boot[[i]][[1]])
 
     }
 
@@ -86,7 +91,7 @@ multilevel_var_decomp <- function(df_fix) {
 
 intra_class_correlations <- rep(NA, length(dfs))
 for (i in seq_len(length(dfs))) {
-    intra_class_correlations[i] <- multilevel_var_decomp(dfs_boot[[i]])
+    intra_class_correlations[i] <- multilevel_var_decomp(dfs_boot[[i]][[1]])
 }
 icc <- data.frame(t(intra_class_correlations))
 colnames(icc) <- names_vec
