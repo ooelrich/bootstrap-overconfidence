@@ -8,7 +8,7 @@ source("Code/0_packages.R")
 
 seed_val <- floor(runif(1) * 1e9)
 set.seed(seed_val)
-n_obs <- 1e2 # Sample size
+n_obs <- 1e5 # Sample size
 design_mat <- dgp(n_obs, c(1, 1), true_mean = TRUE)
 n_parents <- 1e4 # no data sets to boostrap from
 n_bss <- 1e3 # no bootstrap replicates per parent

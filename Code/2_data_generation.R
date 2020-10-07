@@ -31,12 +31,11 @@ log_bf_fun <- function(data, sigma_fn) {
 sim_baseline_t <- function(df, n_obs, sim_reps, design_mat, sigma2) {
 
     sigma_fn <- sigma_fn_gen(sigma2)
-    log_bf <- rep(NA, sim_reps)
-    t_err <- error_matrix(n_row = n_obs, n_col = sim_reps, df)
+    log_bf <- numeric(sim_reps)
 
     for (i in seq_len(sim_reps)) {        
         data_temp <- design_mat
-        data_temp[, 1] <- design_mat[, 1] + t_err[, i]
+        data_temp[, 1] <- design_mat[, 1] + rt(n_obs, df) * sqrt((df - 2) / 2)
         log_bf[i] <- log_bf_fun(data_temp, sigma_fn)
     }
 
@@ -50,10 +49,10 @@ sim_baseline_t <- function(df, n_obs, sim_reps, design_mat, sigma2) {
 sim_baseline_t_boot <- function(df, n_obs, design_mat,
                                 n_parents, n_bss, sigma2) {
 
-    log_bf <- matrix(NA, ncol = n_parents, nrow = n_bss)
+    log_bf <- matrix(NA_real_, ncol = n_parents, nrow = n_bss)
     sigma_fn <- sigma_fn_gen(sigma2)
     # t_err <- error_matrix(n_row = n_obs, n_col = n_parents, df)
-    log_bf_jack <- matrix(NA, ncol = n_parents, nrow = n_obs)
+    #log_bf_jack <- matrix(NA_real_, ncol = n_parents, nrow = n_obs)
     all_obs <- seq_len(n_obs)
 
     for (i in seq_len(n_parents)) {
@@ -86,7 +85,7 @@ sim_baseline_t_boot <- function(df, n_obs, design_mat,
 
 workers <- length(dfs)
 cl <- makeCluster(workers)
-clusterExport(cl, c("sigma_fn_gen", "error_matrix", "log_bf_fun"))
+clusterExport(cl, c("sigma_fn_gen", "log_bf_fun"))
 clusterEvalQ(cl, {
         library(dgpsim)
 })
@@ -95,14 +94,14 @@ Sys.time()
 starting_time <- Sys.time()
 baseline_dat <- parSapply(cl, dfs, sim_baseline_t, n_obs,
                         sim_reps, design_mat, sigma2)
-dfs_boot <- parLapply(cl, dfs, sim_baseline_t_boot, n_obs,
-                    design_mat, n_parents, n_bss, sigma2)
+#dfs_boot <- parLapply(cl, dfs, sim_baseline_t_boot, n_obs,
+#                    design_mat, n_parents, n_bss, sigma2)
 stopCluster(cl)
-
-names_vec <- c()
-for (i in seq_len(length(dfs))) {
-    name <- paste("df", dfs[i], sep = "")
-    names_vec <- c(names_vec, name)
-}
-colnames(baseline_dat) <- names_vec
-baseline_dat <- data.frame(baseline_dat)
+Sys.time() - starting_time
+#names_vec <- c()
+#for (i in seq_len(length(dfs))) {
+#    name <- paste("df", dfs[i], sep = "")
+#    names_vec <- c(names_vec, name)
+#}
+#colnames(baseline_dat) <- names_vec
+#baseline_dat <- data.frame(baseline_dat)

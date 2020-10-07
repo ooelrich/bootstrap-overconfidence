@@ -103,7 +103,8 @@ icc <- round(icc, digits = 3)
 #####################################
 
 # Create a nice graph
-df_all_baseline_melt <- reshape2::melt(baseline_dat)
+df_all_baseline_melt <- reshape2::melt(baseline_dat)[, 2:3]
+colnames(df_all_baseline_melt) <- c("variable", "value")
 df_all_baseline_melt$variable <- as.factor(df_all_baseline_melt$variable)
 plot_all <- ggplot(df_all_baseline_melt, aes(x = value, col = variable)) +
                 geom_density()
