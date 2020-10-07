@@ -52,14 +52,14 @@ sim_baseline_t_boot <- function(df, n_obs, design_mat,
 
     log_bf <- matrix(NA, ncol = n_parents, nrow = n_bss)
     sigma_fn <- sigma_fn_gen(sigma2)
-    t_err <- error_matrix(n_row = n_obs, n_col = n_parents, df)
+    # t_err <- error_matrix(n_row = n_obs, n_col = n_parents, df)
     log_bf_jack <- matrix(NA, ncol = n_parents, nrow = n_obs)
     all_obs <- seq_len(n_obs)
 
     for (i in seq_len(n_parents)) {
 
         data_temp <- design_mat
-        data_temp[, 1] <- design_mat[, 1] + t_err[, i]
+        data_temp[, 1] <- design_mat[, 1] + rt(n_obs, df) * sqrt((df - 2) / 2)
 
         # bootstrap estimate
         for (j in seq_len(n_bss)) {
@@ -69,11 +69,13 @@ sim_baseline_t_boot <- function(df, n_obs, design_mat,
         }
 
         #jackknife estimate
-        for (j in seq_len(n_obs)){
-            jks <- data_temp[all_obs[-j], ]
-            log_bf_jack[j, i] <- log_bf_fun(jks, sigma_fn)
-        }
+        #for (j in seq_len(n_obs)){
+        #    jks <- data_temp[all_obs[-j], ]
+        #    log_bf_jack[j, i] <- log_bf_fun(jks, sigma_fn)
+        #}
     }
+    
+    log_bf_jack <- 0
 
     return(list(log_bf, log_bf_jack))
 }
