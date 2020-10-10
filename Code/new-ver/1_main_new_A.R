@@ -29,18 +29,31 @@ initialize_all_data()
 # contains the sim setup, the LBF of the parent, and the bootstrap
 # estimate of var(LBF)
 
-for (df in c(2.5, 5, 30)) {
+for (i in 1:3) {
 
-    new_rows <- generate_new_rows(deg_f = df, n_bss = 1e3, sigma_2 = 0,
-                              runs = 2e2, design_mat = design_mat_50_A)
+    if(i == 1) {
+        data_set <- design_mat_50_A
+    } else if(i == 2) {
+        data_set <- design_mat_100_A
+    } else if(i == 3) {
+        data_set <- design_mat_1000_A
+    }
 
-    rm(all_data)
-    load("all_data.RData")
-    all_data <- rbind(all_data, new_rows)
-    save(all_data, file = "all_data.RData")
-    print("Current number of rows: ")
-    print(nrow(all_data))
+    for (df in c(2.5, 5, 30)) {
+
+        new_rows <- generate_new_rows(deg_f = df, n_bss = 1e3, sigma_2 = 0,
+                              runs = 4e3, design_mat = data_set)
+
+        rm(all_data)
+        load("all_data.RData")
+        all_data <- rbind(all_data, new_rows)
+        save(all_data, file = "all_data.RData")
+        print("Current number of rows: ")
+        print(nrow(all_data))
+    }
 }
+
+
 
 
 
