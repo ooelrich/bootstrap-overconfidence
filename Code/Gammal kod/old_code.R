@@ -64,3 +64,15 @@ sum(dattaro < 72.5) / length(dattaro)
 # Try the same approach for 20 observations
 
 1 - (1-(20*(1-pbinom(10, 20, 0.1))))^100
+
+
+dmvt(x, mu, S, df=Inf, log=FALSE)
+rmvt(n=1, mu, S, df=Inf)
+
+library(LaplacesDemon)
+
+install.packages("LaplacesDemon")
+
+
+
+dmvt(data[, 1], 0, , df = 2 * a_0, log = TRUE)
