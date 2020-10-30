@@ -6,7 +6,7 @@ library(dgpsim)
 library(qwraps2)
 library(xtable)
 library(parallel)
-source("Code/new-ver/helper_funs.R")
+
 
 set.seed(861226)
 design_mat_100_A <- dgp(100, c(1, 1), true_mean = TRUE)
