@@ -5,6 +5,7 @@ rm(list = ls())
 library(dgpsim)
 library(qwraps2)
 library(xtable)
+library(parallel)
 source("Code/new-ver/helper_funs.R")
 
 
@@ -12,8 +13,8 @@ source("Code/new-ver/helper_funs.R")
 # since we want to use the same design matrix for all
 # repetitions
 set.seed(861226)
-design_mat_50_A <- dgp(50, c(1, 1), true_mean = TRUE)
 design_mat_100_A <- dgp(100, c(1, 1), true_mean = TRUE)
+design_mat_500_A <- dgp(500, c(1, 1), true_mean = TRUE)
 design_mat_1000_A <- dgp(1000, c(1, 1), true_mean = TRUE)
 
 # Verify that the column sums have not changed somehow

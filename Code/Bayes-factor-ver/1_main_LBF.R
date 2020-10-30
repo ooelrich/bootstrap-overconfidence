@@ -5,6 +5,7 @@ rm(list = ls())
 library(dgpsim)
 library(qwraps2)
 library(xtable)
+library(mvtnorm)
 source("Code/Bayes-factor-ver/helpers_LBF.R")
 
 
@@ -39,11 +40,14 @@ for (i in 1:3) {
         data_set <- design_mat_1000_A
     }
 
+    print("Starting data set: ")
+    print(i)
+
     for (df in c(2.5, 5, 30)) {
 
         new_rows <- generate_new_rows(deg_f = df, n_bss = 1e3, sigma_2 = 0,
-                              runs = 4e3, design_mat = data_set, omega_0_1 = 1,
-                              omega_0_2 = 1, a_0 = , b_0 = )
+                              runs = 1e3, design_mat = data_set, omega_0_1 = 1,
+                              omega_0_2 = 1, a_0 = 0.001, b_0 = 0.001)
 
         rm(all_data)
         load("all_data.RData")
@@ -52,6 +56,7 @@ for (i in 1:3) {
         print("Current number of rows: ")
         print(nrow(all_data))
     }
+    
 }
 
 
@@ -77,6 +82,8 @@ summary_appendix <-
 
 a <- t(summary_table(dplyr::group_by(all_data, setup), summary_appendix))
 
+timero <- Sys.time()
 new_rows <- generate_new_rows(deg_f = 2.5, n_bss = 1e3, sigma_2 = 0,
-                              runs = 1e2, design_mat = data_set, omega_0_1 = 1,
+                              runs = 1e2, design_mat = design_mat_50_A, omega_0_1 = 1,
                               omega_0_2 = 1, a_0 = 0.001, b_0 = 0.001)
+Sys.time() - timero

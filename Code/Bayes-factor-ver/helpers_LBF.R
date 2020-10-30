@@ -10,13 +10,12 @@ sigma_fn_gen <- function(sigma2) {
 
 log_bf_fun <- function(data, sigma_fn, a_0, b_0, omega_0_1, omega_0_2) {
 
-    scale_mat1 <- (b_0 / a_0) * (diag(1, nrow = nrow(data)) + omega_0_1 * data[, 2] %*% t(data[, 2]))
-    scale_mat2 <- (b_0 / a_0) * (diag(1, nrow = nrow(data)) + omega_0_2 * data[, 3] %*% t(data[, 3]))
+    nobs <- nrow(data)
+    scale_mat1 <- (b_0 / a_0) * (diag(1, nobs) + omega_0_1 * data[, 2] %*% t(data[, 2]))
+    scale_mat2 <- (b_0 / a_0) * (diag(1, nobs) + omega_0_2 * data[, 3] %*% t(data[, 3]))
     
-    log_ml1 <- dmvt(data[, 1], 0, scale_mat1, df = 2 * a_0, log = TRUE,
-                    checkSymemtry = FALSE)
-    log_ml2 <- dmvt(data[, 1], 0, scale_mat2, df = 2 * a_0, log = TRUE,
-                    checkSymemtry = FALSE)
+    log_ml1 <- dmvt(data[, 1], rep(0, nobs), scale_mat1, df = 2 * a_0, log = TRUE)
+    log_ml2 <- dmvt(data[, 1], rep(0, nobs), scale_mat2, df = 2 * a_0, log = TRUE)
     
     return(log_ml1 - log_ml2)
 }
@@ -33,10 +32,10 @@ generate_one_line <- function(design_matrix, n_obs, deg_f, n_bss, sigma2, omega_
     for (i in seq_len(n_bss)) {
         bss_index <- sample(index, n_obs, replace = TRUE)
         bss <- data_temp[bss_index, ]
-        log_bf[i] <- log_bf_fun(bss, sigma_fn, a_0, b_0, omega_0_1, omega_0_1)
+        log_bf[i] <- log_bf_fun(bss, sigma_fn, a_0, b_0, omega_0_1, omega_0_2)
     }
 
-    LBF <- log_bf_fun(data_temp, sigma_fn)
+    LBF <- log_bf_fun(data_temp, sigma_fn, a_0, b_0, omega_0_1, omega_0_2)
     var_LBF <- var(log_bf)
     p_rad <- sum(as.numeric(abs(log_bf) > 5)) / n_bss
     return(c(n_bss, n_obs, deg_f, LBF, var_LBF, p_rad))
