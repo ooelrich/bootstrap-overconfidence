@@ -45,8 +45,8 @@ for (i in 1:3) {
 
     for (df in c(2.5, 5, 30)) {
 
-        new_rows <- generate_new_rows(deg_f = df, n_bss = 1e3, sigma_2 = 0,
-                              runs = 1e3, design_mat = data_set, omega_0_1 = 1,
+        new_rows <- generate_new_rows(deg_f = df, n_bss = 1e1, sigma_2 = 0,
+                              runs = 1e1, design_mat = data_set, omega_0_1 = 1,
                               omega_0_2 = 1, a_0 = 0.001, b_0 = 0.001)
 
         rm(all_data)
