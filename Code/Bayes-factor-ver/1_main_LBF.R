@@ -13,12 +13,10 @@ source("Code/Bayes-factor-ver/helpers_LBF.R")
 # since we want to use the same design matrix for all
 # repetitions
 set.seed(861226)
-design_mat_50_A <- dgp(50, c(1, 1), true_mean = TRUE)
-design_mat_100_A <- dgp(100, c(1, 1), true_mean = TRUE)
-design_mat_1000_A <- dgp(1000, c(1, 1), true_mean = TRUE)
+design_mat_100_a <- dgp(100, c(1, 1), true_mean = TRUE)
+design_mat_500_a <- dgp(500, c(1, 1), true_mean = TRUE)
+design_mat_1000_a <- dgp(1000, c(1, 1), true_mean = TRUE)
 
-# Verify that the column sums have not changed somehow
-check_data_sets()
 
 # Only run this if you do not have a data_all, as it will wipe
 # out the old one!!!
@@ -32,12 +30,12 @@ initialize_all_data()
 
 for (i in 1:3) {
 
-    if(i == 1) {
-        data_set <- design_mat_50_A
-    } else if(i == 2) {
-        data_set <- design_mat_100_A
-    } else if(i == 3) {
-        data_set <- design_mat_1000_A
+    if (i == 1) {
+        data_set <- design_mat_100_a
+    } else if (i == 2) {
+        data_set <- design_mat_500_a
+    } else if (i == 3) {
+        data_set <- design_mat_1000_a
     }
 
     print("Starting data set: ")
@@ -56,34 +54,38 @@ for (i in 1:3) {
         print("Current number of rows: ")
         print(nrow(all_data))
     }
-    
+
 }
 
 
-all_data$radical <- as.numeric(abs(all_data$LBF) > 5)
+all_data$radical <- as.numeric(abs(all_data$lbf) > 5)
 all_data$setup <- paste0("n: ", all_data$n_obs, " df: ", all_data$deg_f)
 
-all_data$setup <- factor(all_data$setup, levels = c("n: 50 df: 2.5",  "n: 50 df: 5",
-                        "n: 50 df: 30", "n: 100 df: 2.5", "n: 100 df: 5", "n: 100 df: 30", 
-                        "n: 1000 df: 2.5", "n: 1000 df: 5", "n: 1000 df: 30"))
-levels(all_data$setup)
+levels_vec <- c("n: 100 df: 2.5",
+                "n: 100 df: 5",
+                "n: 100 df: 30",
+                "n: 500 df: 2.5",
+                "n: 500 df: 5",
+                "n: 500 df: 30",
+                "n: 1000 df: 2.5",
+                "n: 1000 df: 5",
+                "n: 1000 df: 30")
 
-
-
+all_data$setup <- factor(all_data$setup, levels = levels_vec)
 
 
 # Add some stuff to the data frame for summarizing
-
-summary_appendix <- 
+summary_appendix <-
     list("Simulation results" =
         list("truth"  = ~mean(.data$radical),
-             "boot_approx"  = ~qwraps2::mean_sd(.data$p_radical, digits = 3) )
+             "boot_approx"  = ~qwraps2::mean_sd(.data$p_radical, digits = 3))
         )
 
 a <- t(summary_table(dplyr::group_by(all_data, setup), summary_appendix))
 
 timero <- Sys.time()
 new_rows <- generate_new_rows(deg_f = 2.5, n_bss = 1e3, sigma_2 = 0,
-                              runs = 1e2, design_mat = design_mat_50_A, omega_0_1 = 1,
-                              omega_0_2 = 1, a_0 = 0.001, b_0 = 0.001)
+                              runs = 1, design_mat = design_mat_1000_a,
+                              omega_0_1 = 1, omega_0_2 = 1, a_0 = 0.001,
+                              b_0 = 0.001)
 Sys.time() - timero

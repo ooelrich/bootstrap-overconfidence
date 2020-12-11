@@ -5,10 +5,14 @@
 sigma_fn_gen <- function(sigma2) {
     if (sigma2 > 0) {
         sigma <- sqrt(sigma2)
-        function(m) { sigma }
+        function(m) {
+            sigma
+        }
     } else {
-        function(m) { summary(m)$sigma }
-    } 
+        function(m) {
+            summary(m)$sigma
+        }
+    }
 }
 
 error_matrix <- function(n_row, n_col, df) {
@@ -19,8 +23,8 @@ error_matrix <- function(n_row, n_col, df) {
 log_bf_fun <- function(data, sigma_fn) {
     m1 <- lm(data[, 1] ~ 0 + data[, 2])
     m2 <- lm(data[, 1] ~ 0 + data[, 3])
-    log_ml1 <- sum(dnorm(data[, 1], fitted(m1), sigma_fn(m1), log = T))
-    log_ml2 <- sum(dnorm(data[, 1], fitted(m2), sigma_fn(m2), log = T))
+    log_ml1 <- sum(dnorm(data[, 1], fitted(m1), sigma_fn(m1), log = TRUE))
+    log_ml2 <- sum(dnorm(data[, 1], fitted(m2), sigma_fn(m2), log = TRUE))
     return(log_ml1 - log_ml2)
 }
 
@@ -33,7 +37,7 @@ sim_baseline_t <- function(df, n_obs, sim_reps, design_mat, sigma2) {
     sigma_fn <- sigma_fn_gen(sigma2)
     log_bf <- numeric(sim_reps)
 
-    for (i in seq_len(sim_reps)) {        
+    for (i in seq_len(sim_reps)) {
         data_temp <- design_mat
         data_temp[, 1] <- design_mat[, 1] + rt(n_obs, df) * sqrt((df - 2) / 2)
         log_bf[i] <- log_bf_fun(data_temp, sigma_fn)
@@ -73,7 +77,7 @@ sim_baseline_t_boot <- function(df, n_obs, design_mat,
         #    log_bf_jack[j, i] <- log_bf_fun(jks, sigma_fn)
         #}
     }
-    
+
     log_bf_jack <- 0
 
     return(list(log_bf, log_bf_jack))

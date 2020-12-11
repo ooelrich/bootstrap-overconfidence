@@ -1,7 +1,7 @@
 # Fdb version 3
-["pdflatex"] 1607702793 "/Users/oscaroelrich/Documents/temp/bootstrap-overconfidence/tex-coding/test.tex" "/Users/oscaroelrich/Documents/temp/bootstrap-overconfidence/tex-coding/test.pdf" "test" 1607702794
-  "/Users/oscaroelrich/Documents/temp/bootstrap-overconfidence/tex-coding/test.aux" 1607702794 8 a94a2480d3289e625eea47cd1b285758 ""
-  "/Users/oscaroelrich/Documents/temp/bootstrap-overconfidence/tex-coding/test.tex" 1607702793 1077 7e81f656a5fe456bcc6b45e98eef30a7 ""
+["pdflatex"] 1607711547 "/Users/oscaroelrich/Documents/temp/bootstrap-overconfidence/tex-coding/test.tex" "/Users/oscaroelrich/Documents/temp/bootstrap-overconfidence/tex-coding/test.pdf" "test" 1607711548
+  "/Users/oscaroelrich/Documents/temp/bootstrap-overconfidence/tex-coding/test.aux" 1607711548 8 a94a2480d3289e625eea47cd1b285758 ""
+  "/Users/oscaroelrich/Documents/temp/bootstrap-overconfidence/tex-coding/test.tex" 1607711547 1911 0c92a19ba002f240544ed1e33e6f08a7 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm" 1136768653 1328 c834bbb027764024c09d3d2bf908b5f0 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb" 1248133631 34811 78b52f49e893bcba91bd7581cdc144c0 ""
@@ -16,11 +16,11 @@
   "/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1586288239 4811913 0be9a7e86c70a26e5e3042966bcd7097 ""
   "/usr/local/texlive/2020/texmf-var/web2c/pdftex/pdflatex.fmt" 1607698883 2432458 04d843741840c17f40cf051a2960c06d ""
   "/usr/local/texlive/2020/texmf.cnf" 1586288231 577 d60164b4589a341208aff7a667fbbdcb ""
-  "test.aux" 1607702794 8 a94a2480d3289e625eea47cd1b285758 "pdflatex"
-  "test.tex" 1607702793 1077 7e81f656a5fe456bcc6b45e98eef30a7 ""
+  "test.aux" 1607711548 8 a94a2480d3289e625eea47cd1b285758 "pdflatex"
+  "test.tex" 1607711547 1911 0c92a19ba002f240544ed1e33e6f08a7 ""
   (generated)
+  "test.pdf"
   "test.aux"
   "test.log"
-  "/Users/oscaroelrich/Documents/temp/bootstrap-overconfidence/tex-coding/test.log"
-  "test.pdf"
   "/Users/oscaroelrich/Documents/temp/bootstrap-overconfidence/tex-coding/test.pdf"
+  "/Users/oscaroelrich/Documents/temp/bootstrap-overconfidence/tex-coding/test.log"
