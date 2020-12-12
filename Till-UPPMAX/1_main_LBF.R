@@ -6,7 +6,6 @@ library(dgpsim)
 library(qwraps2)
 library(xtable)
 library(mvtnorm)
-library(parallel)
 source("Code/Bayes-factor-ver/helpers_LBF.R")
 
 
@@ -29,7 +28,7 @@ initialize_all_data()
 # contains the sim setup, the LBF of the parent, and the bootstrap
 # estimate of var(LBF)
 
-for (i in 1:2) {
+for (i in 1:3) {
 
     if (i == 1) {
         data_set <- design_mat_100_a
@@ -44,8 +43,8 @@ for (i in 1:2) {
 
     for (df in c(2.5, 5, 30)) {
 
-        new_rows <- generate_new_rows(deg_f = df, n_bss = 1e3, sigma_2 = 0,
-                              runs = 1e4, design_mat = data_set, omega_0_1 = 1,
+        new_rows <- generate_new_rows(deg_f = df, n_bss = 1e1, sigma_2 = 0,
+                              runs = 1e1, design_mat = data_set, omega_0_1 = 1,
                               omega_0_2 = 1, a_0 = 0.001, b_0 = 0.001)
 
         rm(all_data)
@@ -55,7 +54,9 @@ for (i in 1:2) {
         print("Current number of rows: ")
         print(nrow(all_data))
     }
+
 }
+
 
 all_data$radical <- as.numeric(abs(all_data$lbf) > 5)
 all_data$setup <- paste0("n: ", all_data$n_obs, " df: ", all_data$deg_f)
