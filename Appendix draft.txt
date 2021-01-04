@@ -1,0 +1,26 @@
+# Overconfidence appendix, draft 2
+
+The examples in section 1 show that Bayesian model probabilities can be sensitive to small changes in the data. This sensitivity is quantified by a sampling variance taken with regards to the data-generating process, where the data-generating process is approximated using the nonparametric bootstrap.
+
+This appendix explores the notion that data-generating processes with fat tails will have a higher propensity to generate samples that are, in some sense, unusual, and that bootstrap estimates based on these samples will have a higher probability of being poor.
+
+Part of the reason for this is amplification where rare observations, conditional on being included just once in a sample, can easily be included three or more times in a bootstrap replicate.
+
+To examine how fat tails in the data-generating process influence bootstrap estimates of sampling variability, we consider a simulation based on a simplified version of the models in section 2. We start with a data-generating process on the form
+
+y_i = beta_1 * x_1i + beta_2 * x_2i + kappa * epsilon_i
+
+where epsilon_i ~ t_df, and kappa = sqrt ((df-2)/df). This setup allows us to change the tails of the error distribution without changing its variance. We consider the sampling variance of the Bayes factor when comparing the models
+
+y_i = gamma * x_1i + vareps_i
+y_i = psi * x_2i + vareps_i
+
+where vareps_i ~ N(0, sigma^2). The two models we compare are misspecified in two ways, they each only have access to one of the two relevant covariates, and their error term distributions are wrong. Unlike in the section 2, the variances are freely estimated for the two models under consideration.
+
+To see how the shape of the tails influences the quality of the bootstrap estimate we consider error term variances with different degrees of freedom (2.5, 5, and 30) as well as different sample sizes (100, 500, and 1000).
+
+For each draw from the DGP, a bootstrap estimate of the variance is calculated based on 10 000 resamples from that draw. Based on this variance, the probability of observing *strong evidence* (ref Kass&Raftery) is derived. Table A1 summarises results based on 10 000 samples from each DGP.
+
+The bootstrap estimates are upwards biased (leading to overconfidence in overconfidence) and, at least for smaller samples and fatter tails, quite unstable. However, on average and for reasonably large sample sizes, the bootstrap estimates give good approximations of the true probability of observing strong evidence.
+
+The literature on robust bootstrapping is full of methods that could potentially be used to stabilise these variance estimates, such as the jack knife or the limited replacement bootstrap (reference Stromberg), both of which reduce the potential impact of a single observation.

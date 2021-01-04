@@ -6,25 +6,45 @@ My conjecture is that the variability in the bootstrap based estimate, compared 
 
 ## To-do
 
-- [ ] 
+- [ ] Go through and structure everything
+- [ ] Go through the code with a fine tooth comb
 
 
-## Testing out the hypothesis with a simulation
+## Project structure
 
-Consider the data-generating process
+### Code/Main version
 
-y = beta_1 x_1 + beta_2 x2 + e
+Contains the main version of the code.
 
-where the error term follows a t distribution with *df* degrees of freedom.
+### Code/Old version
 
-I want to examine what happens to the usefulness of bootstrapping to estimate the sampling variance of the Bayes factor for the models
+Contains an old version of the code, should probably be deleted.
 
-y = beta_1^* x_1 + e
-y = beta_2^* x_2 + e
+### Code/Rcpp version
 
-where the error terms are normal. These two models are misspecified in two ways: they each lack one of the covariates of interest, and the have the wrong error term distribution.
+Contains a Rcpp implementation of the code written by Sebastian.
 
-My hunch is that estimating the sampling variance using the nonparametric bootstrap will be more risky when the degrees of freedom is low.
+### Code/Till-UPPMAX
+
+Code to be run on UPMMAX, work in process.
+
+### all_data.RData
+
+A data frame where I store all my runs.
+
+### tex-coding
+
+Tex document used to write out formatted tables with results.
+
+### Images
+
+Some saved images from runs. Don't Kondo this away!
+
+### Appendix draft
+
+Contains a draft of the appendix text.
+
+
 
 ### Hurdles on the way: Making sampling distributions with different tails comparable
 
