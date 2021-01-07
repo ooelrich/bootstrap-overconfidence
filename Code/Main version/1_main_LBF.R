@@ -81,10 +81,3 @@ summary_appendix <-
         )
 
 a <- t(summary_table(dplyr::group_by(all_data, setup), summary_appendix))
-
-timero <- Sys.time()
-new_rows <- generate_new_rows(deg_f = 2.5, n_bss = 1e3, sigma_2 = 0,
-                              runs = 1, design_mat = design_mat_1000_a,
-                              omega_0_1 = 1, omega_0_2 = 1, a_0 = 0.001,
-                              b_0 = 0.001)
-Sys.time() - timero

@@ -6,7 +6,6 @@ My conjecture is that the variability in the bootstrap based estimate, compared 
 
 ## To-do
 
-- [ ] Go through and structure everything
 - [ ] Go through the code with a fine tooth comb
 
 
@@ -54,11 +53,11 @@ The sampling variance will be different depending on what value I use for *df*. 
 
 Using the t-distribution, I can simply rescale the error in the dgp so that the variance is always equal to one. Since the variance of the t-distribution is df / (df - 2) this is straight forward. Note that for two or less degrees of freedom the variance is undefined, so there is no way of making it comparable. (I still feel like it's interesting to look at the Cauchy case.)
 
-### Hurdles on the way: Measuring the radicalization
+# Hurdles along the way: Measuring the radicalization
 
 How do we measure if the bootstrap-estimated sampling variance differs more or less? There are many potential approaches to take.
 
-### Hurdles on the way: Variance decomposition / multilevel modeling
+## Variance decomposition / multilevel modeling
 
 Given that the bootstrap samples can be grouped based on their parent sample, it should be easy to decompose the total variance into two parts and look at how the percentage of variance at each level changes when we change the degrees of freedom.
 
@@ -69,10 +68,3 @@ Plot a whole bunch of bootstrap based estimates of the sampling variance togethe
 ## Probability of radicalization
 
 Let's call an estimate of sampling variance *radicalized* if it is greater than the true sampling variance by some factor. It is then straightforward to calculate the percentage of samples that are radicalized for each degree of freedom and see if it changes in a systematic way.
-
-
-## Some simulation results
-
-The true sampling variance seems to be decreasing as the degrees of freedom are increasing, I always get numbers like
-(df = sampling variance) 3 = 2.2, 5 = 2.0, 10 = 1.8, 100 = 1.7, 1000 = 1.7 (still smaller, 1.71 vs 1.69).
-
