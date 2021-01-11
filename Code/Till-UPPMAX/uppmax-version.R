@@ -1,45 +1,30 @@
-
-library(qwraps2)
-library(xtable)
 library(mvtnorm)
 library(parallel)
 
 # Helper functions
 
-sigma_fn_gen <- function(sigma2) {
-    if (sigma2 > 0) {
-        sigma <- sqrt(sigma2)
-        function(m) {
-            sigma
-        }
-    } else {
-        function(m) {
-            summary(m)$sigma
-        }
-    }
-}
 
-log_bf_fun <- function(data, sigma_fn, a_0, b_0, omega_0_1, omega_0_2) {
+log_bf_fun <- function(data, a_0, b_0, omega_0_1, omega_0_2) {
 
-    nobs <- nrow(data)
+    n_obs <- nrow(data)
     scale_mat1 <- (b_0 / a_0) *
-                  (diag(1, nobs) + omega_0_1 * data[, 2] %*% t(data[, 2]))
+                  (diag(1, n_obs) +  data[, 2] %*% omega_0_1 %*% t(data[, 2]))
     scale_mat2 <- (b_0 / a_0) *
-                  (diag(1, nobs) + omega_0_2 * data[, 3] %*% t(data[, 3]))
+                  (diag(1, n_obs) + data[, 3] %*% omega_0_2 %*% t(data[, 3]))
 
-    log_ml1 <- dmvt(data[, 1], rep(0, nobs),
+    log_ml1 <- dmvt(data[, 1], rep(0, n_obs),
                     scale_mat1, df = 2 * a_0, log = TRUE)
-    log_ml2 <- dmvt(data[, 1], rep(0, nobs),
+    log_ml2 <- dmvt(data[, 1], rep(0, n_obs),
                     scale_mat2, df = 2 * a_0, log = TRUE)
 
     return(log_ml1 - log_ml2)
 }
 
-gen_one_line <- function(design_matrix, n_obs, deg_f, n_bss, sigma2,
+
+gen_one_line <- function(design_matrix, n_obs, deg_f, n_bss,
                               omega_0_1, omega_0_2, a_0, b_0) {
 
     log_bf <- rep(NA_real_, n_bss)
-    sigma_fn <- sigma_fn_gen(sigma2)
     index <- seq_len(n_obs)
     data_temp <- design_matrix
     data_temp[, 1] <- design_matrix[, 1] +
@@ -48,16 +33,16 @@ gen_one_line <- function(design_matrix, n_obs, deg_f, n_bss, sigma2,
     for (i in seq_len(n_bss)) {
         bss_index <- sample(index, n_obs, replace = TRUE)
         bss <- data_temp[bss_index, ]
-        log_bf[i] <- log_bf_fun(bss, sigma_fn, a_0, b_0, omega_0_1, omega_0_2)
+        log_bf[i] <- log_bf_fun(bss, a_0, b_0, omega_0_1, omega_0_2)
     }
 
-    lbf <- log_bf_fun(data_temp, sigma_fn, a_0, b_0, omega_0_1, omega_0_2)
+    lbf <- log_bf_fun(data_temp, a_0, b_0, omega_0_1, omega_0_2)
     var_lbf <- var(log_bf)
     p_rad <- sum(as.numeric(abs(log_bf) > 5)) / n_bss
     return(c(n_bss, n_obs, deg_f, lbf, var_lbf, p_rad))
 }
 
-generate_new_rows <- function(deg_f, n_bss, sigma_2, runs, design_mat,
+generate_new_rows <- function(deg_f, n_bss, runs, design_mat,
                               omega_0_1, omega_0_2, a_0, b_0) {
 
     n_obs <- nrow(design_mat)
@@ -66,8 +51,15 @@ generate_new_rows <- function(deg_f, n_bss, sigma_2, runs, design_mat,
                             "var_lbf", "p_radical")
 
     for (j in seq_len(runs)) {
-        data_gen[j, ] <- gen_one_line(design_mat, n_obs, deg_f, n_bss, sigma_2,
-                                      omega_0_1, omega_0_2, a_0, b_0)
+        data_gen[j, ] <- gen_one_line(design_mat,
+                                      n_obs,
+                                      deg_f,
+                                      n_bss,
+                                      omega_0_1,
+                                      omega_0_2,
+                                      a_0,
+                                      b_0)
+        print(j)
     }
 
     return(data_gen)
@@ -83,14 +75,16 @@ initialize_all_data <- function() {
     save(all_data, file = "/proj/dennis/nobackup/all_data.RData")
 }
 
+
 load("/proj/dennis/nobackup/data100.RData")
 load("/proj/dennis/nobackup/data500.RData")
 load("/proj/dennis/nobackup/data1000.RData")
 
 initialize_all_data()
 
-ncl <- detectCores()
+ncl <- 20
 
+aaa <- Sys.time()
 for (i in 1:3) {
 
     if (i == 1) {
@@ -103,11 +97,10 @@ for (i in 1:3) {
 
     for (df in c(2.5, 5, 30)) {
 
-        #new_rows <- generate_new_rows(deg_f = df, n_bss = 1e1, sigma_2 = 0, runs = 4e2, design_mat = data_set, omega_0_1 = 1, omega_0_2 = 1, a_0 = 0.001, b_0 = 0.001)
-
-        new_rows <- mclapply(rep(1, ncl), generate_new_rows, deg_f = df, n_bss = 1e4, sigma_2 = 0,
-                              design_mat = data_set, omega_0_1 = 1,
-                              omega_0_2 = 1, a_0 = 0.001, b_0 = 0.001, mc.cores = ncl)
+        new_rows <- mclapply(rep(1, ncl), generate_new_rows, deg_f = df,
+                             n_bss = 1e4, design_mat = data_set,
+                             omega_0_1 = matrix(1), omega_0_2 = matrix(1),
+                             a_0 = 0.001, b_0 = 0.001, mc.cores = ncl)
 
         new_rows <- do.call("rbind", new_rows)
 
@@ -118,30 +111,4 @@ for (i in 1:3) {
     }
 
 }
-
-
-
-#all_data$radical <- as.numeric(abs(all_data$lbf) > 5)
-#all_data$setup <- paste0("n: ", all_data$n_obs, " df: ", all_data$deg_f)
-
-#levels_vec <- c("n: 100 df: 2.5",
-#                "n: 100 df: 5",
-#                "n: 100 df: 30",
-#                "n: 500 df: 2.5",
-#                "n: 500 df: 5",
-#                "n: 500 df: 30",
-#                "n: 1000 df: 2.5",
-#                "n: 1000 df: 5",
-#                "n: 1000 df: 30")
-
-#all_data$setup <- factor(all_data$setup, levels = levels_vec)
-
-
-# Add some stuff to the data frame for summarizing
-#summary_appendix <-
-#    list("Simulation results" =
-#        list("truth"  = ~mean(.data$radical),
-#             "boot_approx"  = ~qwraps2::mean_sd(.data$p_radical, digits = 3))
-#        )
-
-#a <- t(summary_table(dplyr::group_by(all_data, setup), summary_appendix))
+Sys.time() - aaa

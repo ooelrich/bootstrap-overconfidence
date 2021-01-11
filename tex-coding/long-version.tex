@@ -1,20 +1,75 @@
 \documentclass{article}
 
-\usepackage{amsmath}
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
 
 \begin{document}
 
 
 \section{Introduction}
 
-We use the following data-generating process
+I use the following data-generating process
 
 \begin{equation*}
-    y = x_1 \beta_1 + x_2 \beta_2 \sqrt{\frac{df-2}{df}}\varepsilon, \qquad \varepsilon \sim t_{df}
+    y = x_1 \beta_1 + x_2 \beta_2 + \sqrt{\frac{df-2}{df}}\varepsilon, \qquad \varepsilon \sim t_{df}
 \end{equation*}
 
-The reason that the error term looks the way it does is that we want to be able to specify data-generating processes with differently shaped error term distributions (varying thiccnes) while keeping the error term variance fixed.
+The reason that the error term looks the way it does is that I want to be able to specify data-generating processes with differently shaped error term distributions (varying thiccnes, as the kids would say) while keeping the error term variance fixed.
 
-We compare two models on the form
+I then compare the two models
+
+\begin{align*}
+    y &= \gamma x_1 + \varepsilon_1, \qquad \varepsilon_1 \sim \operatorname{N}(0, \sigma_1^2) \\
+    y &= \phi x_2 + \varepsilon_2, \qquad \varepsilon_2 \sim \operatorname{N}(0, \sigma_2^2)
+\end{align*}
+
+The two models I compare are thus misspecified in two ways: they only include one of the two relevant covariates and their error-terms are normally instead of t-distributed. 
+
+I use a standard NIG (normal inverse-Gamma) prior for $(\gamma,\sigma_1^2)$ and $(\phi, \sigma_2^2)$.
+
+\subsection{Deriving the Bayes factor}
+
+Given that the prior of $\sigma_i^2$ is $\operatorname{IG}(a_0,b_0)$, and the prior of the regression coefficient is $\operatorname{N}(0, \sigma_i^2\Omega_0)$, the marginal distribution will be
+
+\begin{equation*}
+    p(y) = \operatorname{MVSt}_{2a_0}\left(0,\frac{b_0}{a_0}(I+X\Omega_0 X^{\intercal})\right).
+\end{equation*}
+
+Given the marginal likelihood, it is straight forward to calculate the (log) Bayes factor as the (log of) the ratio of two multivariate t distributions.
+
+\section{Setup}
+
+I choose a very flat prior for the variance for the two models, letting both models $b_0$ and $a_0$ be close to zero. In a similar manner I set $\Omega_0=I$ (which will just be $1$ since there is only one regression parameter in each model) for both models.
+
+\section{Calculating variances}
+
+The main focus of the paper is to calculate sampling variances analytically for regression models. Can we do this in this appendix exercise as well? If not, why not?
+
+
+\section{The simulation study}
+
+The atomic element (one observation) of the simulation study is the generation of one sample from the DGP (a parent sample) that is resampled \texttt{n\textunderscore bss} times. For each bootstrap sample, the log Bayes factor is calculated. Each parent then gives one estimated sampling variance of the log Bayes factor.
+
+The function corresponding to the atomic element is \texttt{gen\_one\_line} , which takes as input arguments
+
+\begin{itemize}
+    \item A design matrix with two covariates and \emph{n\_obs} observations. This typically stays the same between different parents, but I also try different design matrices to make sure the results are not the result of some weird design matrix setup.
+    \item A thiccness parameter, \emph{deg\textunderscore f}, that is used to generate the error terms. The error terms are unique for each parent, even when they follow the same distribution.
+    \item \emph{n\textunderscore bss} which indicates the number of bootstrap replicates to use for each parent. Ideally, this number would be arbitrarily large. I started with \emph{n\textunderscore bss = 10 000}, but this is to large. It is more important to try different settings and to be able to afford to generate a large amount of parents, so I will use \emph{n\textunderscore bss=1000} instead. This is what we use in the DSGE example anyways.
+    \item \emph{omega\textunderscore 0\textunderscore 1} and \emph{omega\textunderscore 0\textunderscore 2} which are related to the $\beta$ priors.
+    \item \emph{a\textunderscore 0} and \emph{b\textunderscore 0} which are related to the $\sigma^2$ priors. Note that both of the models that I compare have the same prior for the variance.
+\end{itemize}
+
+The atomic operation, which generates one line in the output, does the following
+\begin{itemize}
+    \item Creates a vector that is \emph{n\textunderscore bss} to temporarily store values from the bootstrap estimates in.
+    \item Creates a parent dataset of \emph{n\textunderscore obs} observations by by adding noise to the true response, where the added noise is t-distributed with \emph{deg\textunderscore f} degrees of freedom, and is rescaled to have the same variance no matter what \emph{deg\textunderscore f} is.
+    \item Loops \emph{n\textunderscore bss} times: draw a bootstrap sample from the data, calculate the log Bayes factor based on that sample, store the result in the temporary vector. 
+    \item Calculates the log Bayes factor based on the parents original data.
+    \item Estimates the sampling variance of the log Bayes factor by calculating the variance of the temporary vector of log Bayes factors, \emph{lbf}.
+    \item Calculates \emph{p\textunderscore rad}, the percentage of resampled datasets where the log Bayes factor is greater than $5$ in absolute value.
+    \item Returns a row consisting of \emph{n\textunderscore bss}, \emph{n\textunderscore obs}, \emph{deg\textunderscore f}, \emph{lbf}, \emph{var\textunderscore lbf}, \emph{p\textunderscore rad}. 
+\end{itemize}
+
+This atomic operation is called with the function \emph{generate\textunderscore multiple\textunderscore rows} that specifies all the information needed to generate one row, together with the number of parents to create (\emph{runs}). It returns a matrix with \emph{runs} rows and six columns, corresponding to the six elements returned by \emph{generate\textunderscore one\textunderscore row}.
 
 \end{document}

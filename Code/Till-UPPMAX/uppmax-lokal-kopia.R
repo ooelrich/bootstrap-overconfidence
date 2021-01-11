@@ -1,16 +1,8 @@
+library(mvtnorm)
+library(parallel)
 
-sigma_fn_gen <- function(sigma2) {
-    if (sigma2 > 0) {
-        sigma <- sqrt(sigma2)
-        function(m) {
-            sigma
-        }
-    } else {
-        function(m) {
-            summary(m)$sigma
-        }
-    }
-}
+# Helper functions
+
 
 log_bf_fun <- function(data, a_0, b_0, omega_0_1, omega_0_2) {
 
@@ -82,3 +74,41 @@ initialize_all_data <- function() {
                            p_radical = double())
     save(all_data, file = "all_data.RData")
 }
+
+
+load("/proj/dennis/nobackup/data100.RData")
+load("/proj/dennis/nobackup/data500.RData")
+load("/proj/dennis/nobackup/data1000.RData")
+
+initialize_all_data()
+
+ncl <- 1
+
+aaa <- Sys.time()
+for (i in 2) {
+
+    if (i == 1) {
+        data_set <- design_mat_100_a
+    } else if (i == 2) {
+        data_set <- design_mat_500_a
+    } else if (i == 3) {
+        data_set <- design_mat_1000_a
+    }
+
+    for (df in c(2.5, 5, 30)) {
+
+        new_rows <- mclapply(rep(1, ncl), generate_new_rows, deg_f = df,
+                             n_bss = 1e4, design_mat = data_set,
+                             omega_0_1 = matrix(1), omega_0_2 = matrix(1),
+                             a_0 = 0.001, b_0 = 0.001, mc.cores = ncl)
+
+        new_rows <- do.call("rbind", new_rows)
+
+        rm(all_data)
+        load("all_data.RData")
+        all_data <- rbind(all_data, new_rows)
+        save(all_data, file = "all_data.RData")
+    }
+
+}
+Sys.time() - aaa

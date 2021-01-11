@@ -25,7 +25,7 @@ Contains a Rcpp implementation of the code written by Sebastian.
 
 ### Code/Till-UPPMAX
 
-Code to be run on UPMMAX, work in process.
+Code to be run on UPMMAX. uppmax-lokal-kopia.R is a version of the uppmax code made to be run locally (just changes where it reads/writes).
 
 ### all_data.RData
 
@@ -33,7 +33,13 @@ A data frame where I store all my runs.
 
 ### tex-coding
 
+#### Test
+
 Tex document used to write out formatted tables with results.
+
+#### Long version
+
+Contains the theory and derivations relevant to this project.
 
 ### Images
 
