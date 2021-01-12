@@ -61,6 +61,7 @@ log_bf_fun_fast <- function(data, a_0, b_0, omega_0_1, omega_0_2) {
 }
 
 
-load("all_data.RData")
+load("all_data_2.RData")
 head(all_data)
 nrow(all_data)
+all_data
