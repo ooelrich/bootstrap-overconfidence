@@ -6,33 +6,56 @@ library(mvtnorm)
 Rcpp::sourceCpp("Code/Rcpp-version/funsRcpp2.cpp")
  
 
-Rcpp::sourceCpp("Code/Rcpp-version/funsRcpp.cpp")
+initialize_all_data <- function() {
+  all_data <- data.frame(boot_reps = integer(),
+                        n_obs = integer(),
+                        deg_f = double(),
+                        lbf = double(),
+                        var_lbf = double(),
+                        p_radical = double())
+  save(all_data, file = "all_data.RData")
+}
 
-S1  <- diag(100) + datta[, 2] %*% t(datta[,2])
-S2  <- diag(100) + datta[, 3] %*% t(datta[,3])
+set.seed(861226)
+design_mat_100_a <- as.matrix(dgp(100, c(1, 1), true_mean = TRUE))
+design_mat_500_a <- as.matrix(dgp(500, c(1, 1), true_mean = TRUE))
+design_mat_1000_a <- as.matrix(dgp(1000, c(1, 1), true_mean = TRUE))
 
+# wrapper for the Rcpp stuff
 
-logdmvt_Rcpp(datta[,1], S1) - logdmvt_Rcpp(datta[,1], S2)
+bootstrap_batch <- function(deg_f, n_bss, runs, design_mat) {
+                              
+  n_obs <- nrow(design_mat)
+  sim_vals <- generate_rows(df, n_obs, design_mat, n_bss, runs)
+  cbind(rep(n_bss, runs), rep(n_obs, runs), rep(deg_f, runs))
 
-microbenchmark(atomic_operation(2.5, 100, as.matrix(datta), 1000))
+}
 
+aaa <- Sys.time()
+for (i in 1:3) {
 
-dim(datta)
+    if (i == 1) {
+        data_set <- design_mat_100_a
+    } else if (i == 2) {
+        data_set <- design_mat_500_a
+    } else if (i == 3) {
+        data_set <- design_mat_1000_a
+    }
 
-class(datta)
+    print("Starting data set: ")
+    print(i)
 
-dim(S1)
+    for (df in c(2.5, 5, 30)) {
 
-datta <- dgp(1000, c(1,1), TRUE)
+        new_rows <- generate_rows(df = df, design_mat = data_set,
+                                  n_bss = 1e3, n_parents = 1)
 
-aa <- Sys.time()
-a <-  bootstrap_batch(2.5, 1000, as.matrix(datta), 1, 1000)
-Sys.time() - aa
-
-
-
-datta <- dgp(500, c(1,1), TRUE)
-
-aa <- Sys.time()
-a <-  bootstrap_batch(2.5, 500, as.matrix(datta), 1, 500)
-Sys.time() - aa
+        rm(all_data)
+        load("all_data.RData")
+        all_data <- rbind(all_data, new_rows)
+        save(all_data, file = "all_data.RData")
+        print("Current number of rows: ")
+        print(nrow(all_data))
+    }
+}
+Sys.time() - aaa

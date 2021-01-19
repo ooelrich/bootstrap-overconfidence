@@ -12,9 +12,9 @@ log_bf_fun <- function(data, a_0, b_0, omega_0_1, omega_0_2) {
     scale_mat2 <- (b_0 / a_0) *
                   (diag(1, n_obs) + data[, 3] %*% omega_0_2 %*% t(data[, 3]))
 
-    log_ml1 <- dmvt(data[, 1], rep(0, n_obs),
+    log_ml1 <- mvtnorm::dmvt(data[, 1], rep(0, n_obs),
                     scale_mat1, df = 2 * a_0, log = TRUE)
-    log_ml2 <- dmvt(data[, 1], rep(0, n_obs),
+    log_ml2 <- mvtnorm::dmvt(data[, 1], rep(0, n_obs),
                     scale_mat2, df = 2 * a_0, log = TRUE)
 
     return(log_ml1 - log_ml2)
