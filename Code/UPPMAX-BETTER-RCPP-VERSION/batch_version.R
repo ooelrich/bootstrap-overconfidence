@@ -7,6 +7,16 @@ library(parallel)
 Rcpp::sourceCpp("/proj/dennis/test-r/funsRcpp2.cpp")
  
 
+ID <- as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID"))
+
+if (ID < 1001) {
+    df <- 2.5
+} else if (ID < 2001) {
+    df <- 5
+} else {
+    df <- 30
+}
+
 initialize_all_data <- function() {
   all_data <- data.frame(boot_reps = integer(),
                         n_obs = integer(),
