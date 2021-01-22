@@ -1,3 +1,21 @@
+#########################
+### PARAMETERS TO SET ###
+#########################
+rm(list = ls())
+library(dgpsim)
+library(qwraps2)
+library(xtable)
+library(mvtnorm)
+library(parallel)
+
+# Create input data and control that it's still the same
+# since we want to use the same design matrix for all
+# repetitions
+set.seed(861226)
+design_mat_100_a <- dgp(100, c(1, 1), true_mean = TRUE)
+design_mat_500_a <- dgp(500, c(1, 1), true_mean = TRUE)
+design_mat_1000_a <- dgp(1000, c(1, 1), true_mean = TRUE)
+
 
 sigma_fn_gen <- function(sigma2) {
     if (sigma2 > 0) {
@@ -82,3 +100,59 @@ initialize_all_data <- function() {
                            p_radical = double())
     save(all_data, file = "all_data.RData")
 }
+
+
+# Only run this if you do not have a data_all, as it will wipe
+# out the old one!!!
+initialize_all_data()
+
+# This function generates a new number of observations equal to
+# runs. One observation is one parent sample from the given DGP
+# and n_bss bootstrap replicates based on that parent. Each row
+# contains the sim setup, the LBF of the parent, and the bootstrap
+# estimate of var(LBF)
+
+
+
+
+data_set <- design_mat_100_a
+aaa <- Sys.time()
+for (df in c(2.5, 5, 30)) {
+
+    new_rows <- generate_new_rows(deg_f = df, n_bss = 1e3,
+                              runs = 1e4, design_mat = data_set, omega_0_1 = matrix(1),
+                              omega_0_2 = matrix(1), a_0 = 0.01, b_0 = 0.01)
+
+    rm(all_data)
+    load("all_data.RData")
+    all_data <- rbind(all_data, new_rows)
+    save(all_data, file = "all_data.RData")
+    print("Current number of rows: ")
+    print(nrow(all_data))
+}
+Sys.time() - aaa
+
+all_data$radical <- as.numeric(abs(all_data$lbf) > 5)
+all_data$setup <- paste0("n: ", all_data$n_obs, " df: ", all_data$deg_f)
+
+levels_vec <- c("n: 100 df: 2.5",
+                "n: 100 df: 5",
+                "n: 100 df: 30",
+                "n: 500 df: 2.5",
+                "n: 500 df: 5",
+                "n: 500 df: 30",
+                "n: 1000 df: 2.5",
+                "n: 1000 df: 5",
+                "n: 1000 df: 30")
+
+all_data$setup <- factor(all_data$setup, levels = levels_vec)
+
+
+# Add some stuff to the data frame for summarizing
+summary_appendix <-
+    list("Simulation results" =
+        list("truth"  = ~mean(.data$radical),
+             "boot_approx"  = ~qwraps2::mean_sd(.data$p_radical, digits = 3))
+        )
+
+a <- t(summary_table(dplyr::group_by(all_data, setup), summary_appendix))

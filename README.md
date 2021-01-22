@@ -11,25 +11,22 @@ My conjecture is that the variability in the bootstrap based estimate, compared 
 
 ## Project structure
 
-### Code/Main version
+### Analysis
 
-Contains the main version of the code.
+Code to analyse the data (most of which is generated using uppmax). Also contains a data frame with all draws. Results for the small data set (n=100) are generated locally.
 
-### Code/Old version
-
-Contains an old version of the code, should probably be deleted.
-
-### Code/Rcpp version
-
-Contains a Rcpp implementation of the code written by Sebastian.
-
-### Code/Till-UPPMAX
-
-Code to be run on UPMMAX. uppmax-lokal-kopia.R is a version of the uppmax code made to be run locally (just changes where it reads/writes).
-
-### all_data.RData
+#### all_data.RData
 
 A data frame where I store all my runs.
+
+### Code/Old versions
+
+Contains old versions of the code. Both clean R versions and an initial Rcpp version written by Sebastian.
+
+### Uppmax-ver
+
+Version of the code optimized to run on UPPMAX.
+
 
 ### tex-coding
 
