@@ -13,7 +13,7 @@ if ("dgpsim" %in% installed.packages()[, 1]) {
 }
 
 Rcpp::sourceCpp("/proj/dennis/test-r/funsRcpp2.cpp")
- 
+
 slurm_id <- as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID"))
 n_obs <- as.numeric(Sys.getenv("N_OBS"))
 
@@ -33,8 +33,10 @@ if (n_obs == 500) {
     data_set <- as.matrix(design_mat_1000_a)
 }
 
-new_rows <- generate_rows(df = df, design_mat = data_set, n_bss = 1e3, n_parents = 5)
-saveRDS(new_rows, file = sprintf("/proj/dennis/nobackup/data%s.Rds", slurm_id))
+new_rows <- generate_rows(df = df, design_mat = data_set,
+                        n_bss = 1e3, n_parents = 5)
+sv_pth <- sprintf("/proj/dennis/nobackup/data%s.Rds", slurm_id)
+saveRDS(new_rows, file = sv_pth)
 
 bbb <- Sys.time() - aaa
 print(bbb)

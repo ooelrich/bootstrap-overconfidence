@@ -120,8 +120,9 @@ aaa <- Sys.time()
 for (df in c(2.5, 5, 30)) {
 
     new_rows <- generate_new_rows(deg_f = df, n_bss = 1e3,
-                              runs = 1e4, design_mat = data_set, omega_0_1 = matrix(1),
-                              omega_0_2 = matrix(1), a_0 = 0.01, b_0 = 0.01)
+                              runs = 1e4, design_mat = data_set,
+                              omega_0_1 = matrix(1), omega_0_2 = matrix(1),
+                              a_0 = 0.01, b_0 = 0.01)
 
     rm(all_data)
     load("all_data.RData")
