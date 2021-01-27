@@ -11,7 +11,7 @@ library(parallel)
 # Create input data and control that it's still the same
 # since we want to use the same design matrix for all
 # repetitions
-set.seed(861226)
+set.seed(39193)
 design_mat_100_a <- dgp(100, c(1, 1), true_mean = TRUE)
 design_mat_500_a <- dgp(500, c(1, 1), true_mean = TRUE)
 design_mat_1000_a <- dgp(1000, c(1, 1), true_mean = TRUE)
@@ -120,7 +120,7 @@ aaa <- Sys.time()
 for (df in c(2.5, 5, 30)) {
 
     new_rows <- generate_new_rows(deg_f = df, n_bss = 1e3,
-                              runs = 1e4, design_mat = data_set,
+                              runs = 1e3, design_mat = data_set,
                               omega_0_1 = matrix(1), omega_0_2 = matrix(1),
                               a_0 = 0.01, b_0 = 0.01)
 
@@ -132,6 +132,11 @@ for (df in c(2.5, 5, 30)) {
     print(nrow(all_data))
 }
 Sys.time() - aaa
+
+#####
+
+saveRDS(all_data, file = "Data sets/n100_3.Rds")
+
 
 all_data$radical <- as.numeric(abs(all_data$lbf) > 5)
 all_data$setup <- paste0("n: ", all_data$n_obs, " df: ", all_data$deg_f)
