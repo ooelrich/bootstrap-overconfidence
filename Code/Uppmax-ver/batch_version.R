@@ -26,9 +26,9 @@ if ((slurm_id %% 3) == 1) {
 }
 
 set.seed(988)
-data_set <- as.matrix(dgp(n_obs, c(1,1), TRUE))
+data <- as.matrix(dgp(n_obs, c(1,1), TRUE))
 
-new_rows <- generate_rows(df = df, design_mat = data_set, n_bss = 1e3, n_parents = 5)
+new_rows <- generate_rows(df = df, design_mat = data, n_bss = 1e3, n_parents = 5)
 saveRDS(new_rows, file = sprintf("/proj/dennis/nobackup/data%s.Rds", slurm_id))
 
 print(Sys.time() - aaa)

@@ -3,7 +3,7 @@
 #SBATCH -A snic2020-15-262
 #SBATCH -p core
 #SBATCH -n 1
-#SBATCH -t 01:00:00
+#SBATCH -t 00:50:00
 #SBATCH -J overconfidence
 #SBATCH -a 1-600
 #SBATCH --mail-user=oscar.oelrich@stat.su.se
