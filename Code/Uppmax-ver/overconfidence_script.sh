@@ -5,7 +5,7 @@
 #SBATCH -n 1
 #SBATCH -t 01:00:00
 #SBATCH -J overconfidence
-#SBATCH -a 1-201
+#SBATCH -a 1-600
 #SBATCH --mail-user=oscar.oelrich@stat.su.se
 #SBATCH --mail-type=END,FAIL
 export N_CORES="1"

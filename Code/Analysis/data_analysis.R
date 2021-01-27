@@ -8,7 +8,7 @@ varnames <- c("boot_reps", "n_obs", "deg_f", "lbf", "var_lbf", "p_radical")
 
 colnames(n500) <- varnames
 colnames(n1000) <- varnames
-bdf <- rbind(n500, n1000, all_data)
+bdf <- rbind(n500, n1000, n100)
 
 head(bdf)
 
