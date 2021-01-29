@@ -6,7 +6,7 @@ My conjecture is that the variability in the bootstrap based estimate, compared 
 
 ## To-do
 
-- [ ] Go through the code with a fine tooth comb
+
 
 
 ## Project structure
