@@ -11,7 +11,7 @@ library(parallel)
 # Create input data and control that it's still the same
 # since we want to use the same design matrix for all
 # repetitions
-set.seed(39193)
+set.seed(988)
 design_mat_100_a <- dgp(100, c(1, 1), true_mean = TRUE)
 design_mat_500_a <- dgp(500, c(1, 1), true_mean = TRUE)
 design_mat_1000_a <- dgp(1000, c(1, 1), true_mean = TRUE)
@@ -135,7 +135,7 @@ Sys.time() - aaa
 
 #####
 
-saveRDS(all_data, file = "Data sets/n100_3.Rds")
+saveRDS(all_data, file = "Data sets/n100_2.Rds")
 
 
 all_data$radical <- as.numeric(abs(all_data$lbf) > 5)
