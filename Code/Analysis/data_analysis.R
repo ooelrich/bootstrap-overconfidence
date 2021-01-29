@@ -142,7 +142,7 @@ varnames <- c("boot_reps", "n", "df", "lbf", "var_lbf", "p_radical")
 colnames(n500) <- varnames
 colnames(n1000) <- varnames
 colnames(n100) <- varnames
-bdf <- rbind(n500, n1000)
+bdf <- rbind(n100, n500, n1000)
 
 head(bdf)
 
@@ -160,7 +160,9 @@ ans <- bdf[, .(true_var = var(lbf),
                q_025 = quantile(p_radical, 0.025),
                q_975 = quantile(p_radical, 0.975)),
             by = .(df, n)]
-ans
+ans <- cbind(ans, ans[, .(bias = mean_p_radical - true)])
+
+
 
 # Pick out the columns you need for the graph, turn into data.frame
 df <- data.frame(ans[, .(df, n, true, q_025, q_25, median, q_75, q_975)])
