@@ -1,10 +1,10 @@
 library(data.table)
-library(ggplot2)
+library(ggplot2, ggthemes)
 library(reshape2)
 
-n100 <- data.frame(readRDS("Data sets/n100.Rds"))
-n500 <- data.frame(readRDS("Data sets/n500.Rds"))
-n1000 <- data.frame(readRDS("Data sets/n1000.Rds"))
+n100 <- data.frame(readRDS("Data sets/n100_1.Rds"))
+n500 <- data.frame(readRDS("Data sets/n500_1.Rds"))
+n1000 <- data.frame(readRDS("Data sets/n1000_1.Rds"))
 
 varnames <- c("boot_reps", "n", "df", "lbf", "var_lbf", "p_radical")
 
@@ -12,9 +12,6 @@ colnames(n500) <- varnames
 colnames(n1000) <- varnames
 colnames(n100) <- varnames
 bdf <- rbind(n100, n500, n1000)
-
-head(bdf)
-
 
 bdf <- data.table(bdf)
 ans <- bdf[, .(true_var = var(lbf),
@@ -43,7 +40,8 @@ df$y <- 1
 g <- ggplot(df, aes(y)) +
         geom_boxplot(aes(ymin = q_025, lower = q_25, middle = median, upper = q_75,
             ymax = q_975), width = 0.03, stat = "identity") + 
-        geom_point(aes(x = 1, y = true, col = "red")) + coord_flip() +
+        geom_point(aes(x = 1, y = true, col = "red"), position = position_nudge(x = -0.012), size = 0.7) + 
+        coord_flip() +
         ylim(c(0,1)) + xlim(c(0.9, 1.1)) +
         theme(legend.position = "none") +
         theme(axis.title.x = element_blank()) +
@@ -54,7 +52,24 @@ g <- ggplot(df, aes(y)) +
             panel.grid.minor = element_blank()) +
         theme(axis.text=element_text(size = 8, face = "bold")) +
         facet_grid(df ~ n, labeller = label_both)
+g
 
+
+g <- ggplot(df, aes(y)) +
+        geom_boxplot(aes(ymin = q_025, lower = q_25, middle = median, upper = q_75,
+            ymax = q_975), width = 0.03, stat = "identity") + 
+        geom_hline(aes(yintercept = true, col = "red"), size = 0.2) + 
+        coord_flip() +
+        ylim(c(0,1)) + xlim(c(0.9, 1.1)) +
+        theme(legend.position = "none") +
+        theme(axis.title.x = element_blank()) +
+        theme(axis.title.y = element_blank()) +
+        theme(axis.ticks.y = element_blank()) +
+        theme(axis.text.y = element_blank(), 
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank()) +
+        theme(axis.text=element_text(size = 8, face = "bold")) +
+        facet_grid(df ~ n, labeller = label_both)
 
 # Change the font on the facet strips
 g + theme(strip.text.x = element_text(size = 10, face = "bold"),
